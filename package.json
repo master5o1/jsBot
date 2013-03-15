@@ -1,20 +1,24 @@
 {
-  "name": "jsbot",
-    "version": "0.0.1",
-  "author": "Jason Schwarzenberger <jason@master5o1.com>",
+  "name": "jsBot",
+  "version": "0.0.0",
   "description": "A delicious multi-server IRC bot.",
-  "contributors": [ 
-    { "name": "Jason Schwarzenberger", "email": "jason@master5o1.com" } 
-  ],
+  "main": "run.js",
+  "dependencies": {
+    "irc": "~0.3.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/master5o1/jsBot"
+    "url": "https://master5o1@bitbucket.org/master5o1/jsbot.git"
   },
-  "dependencies" : {
-    "irc"   :  ">=0.3.6",
-  },
+  "keywords": [
+    "irc",
+    "bot"
+  ],
+  "author": "Jason Schwarzenberger <jason@master5o1.com>",
   "license": "GPLv2",
-  "engines": {
-    "node": ">=0.10"
-  }
+  "gitHead": "8edf9615ff9990ec2b5b470c70a259d972219dc7"
 }
