@@ -14,8 +14,6 @@ var Module = module.exports = function Module(bot){
 Module.prototype.load = function(){
 	var self = this;
 	
-	self.unloaded = false;
-	
 	self.bot.addListener('command_join', self.join());
 	self.bot.addListener('command_part', self.part());
 	self.bot.addListener('command_say', self.say());
@@ -23,7 +21,7 @@ Module.prototype.load = function(){
 
 Module.prototype.unload = function() {
 	var self = this;
-	self.unloaded = true;
+	
 	self.bot.removeAllListeners('command_join');
 	self.bot.removeAllListeners('command_part');
 	self.bot.removeAllListeners('command_say');

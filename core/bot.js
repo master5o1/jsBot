@@ -100,7 +100,7 @@ Bot.prototype.loadModule = function(path, file, index) {
 		isCore = path == './',
 		module;
 	if (file == 'bot.js') return;
-	console.log('loading', (isCore ? 'core' : 'module') ,':', file);
+	console.log('loading', (isCore ? 'core:' : 'module:'), file);
 	
 	Object.keys(require.cache).forEach(function(key) {
 		if (require(key) == require(path + '/' + file))
@@ -117,7 +117,7 @@ Bot.prototype.unloadModule = function(name) {
 	});
 	modules.forEach(function(module, index) {
 		module.module.unload();
-		console.log('unloading', (module.core ? 'core' : 'module') ,':', module.file);
+		console.log('unloading', (module.core ? 'core:' : 'module:'), module.file);
 	});
 	bot.modules = bot.modules.filter(function(mod){
 		return mod.name != name;
@@ -143,6 +143,7 @@ Bot.prototype.loadModules = function() {
 	});
 };
 
+// I want to move this to utils.js
 Bot.prototype.reload = function(client, from, to, args) {
 	var bot = this,
 		module, message,
