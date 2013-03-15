@@ -20,12 +20,5 @@ config.servers = [
 		channels: [
 			"#jsBot",
 		]
-	},
-	// {
-		// name: "pirateirc",
-		// url: "montreal-ca.pirateirc.net",
-		// channels: [
-			// "#master5o1",
-		// ]
-	// },
+	}
 ];
