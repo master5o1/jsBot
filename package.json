@@ -1,0 +1,20 @@
+{
+  "name": "jsbot",
+    "version": "0.0.1",
+  "author": "Jason Schwarzenberger <jason@master5o1.com>",
+  "description": "A delicious multi-server IRC bot.",
+  "contributors": [ 
+    { "name": "Jason Schwarzenberger", "email": "jason@master5o1.com" } 
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/master5o1/jsBot"
+  },
+  "dependencies" : {
+    "irc"   :  ">=0.3.6",
+  },
+  "license": "GPLv2",
+  "engines": {
+    "node": ">=0.10"
+  }
+}
