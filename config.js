@@ -21,11 +21,11 @@ config.servers = [
 			"#jsBot",
 		]
 	},
-	{
-		name: "PirateIRC",
-		url: "montreal-ca.pirateirc.net",
-		channels: [
-			"#master5o1",
-		]
-	},
+	// {
+		// name: "PirateIRC",
+		// url: "montreal-ca.pirateirc.net",
+		// channels: [
+			// "#master5o1",
+		// ]
+	// },
 ];
