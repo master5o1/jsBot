@@ -3,7 +3,7 @@ var config = module.exports = {};
 config.bot = {
 	nick: "jsBot",
 	pass: "",
-	commandPrefix: '!'
+	commandPrefix: '.'
 };
 
 config.users = {
@@ -22,7 +22,7 @@ config.servers = [
 		]
 	},
 	// {
-		// name: "PirateIRC",
+		// name: "pirateirc",
 		// url: "montreal-ca.pirateirc.net",
 		// channels: [
 			// "#master5o1",
