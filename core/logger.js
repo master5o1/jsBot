@@ -1,3 +1,5 @@
+var util = require('util');
+
 String.prototype.startsWith = function(start) {
 	return this.substring(0, start.length) == start;
 };
@@ -26,18 +28,11 @@ Module.prototype.unload = function() {
 
 Module.prototype.console = function(){
 	var self = this;
+	function f(n){ return ((""+n).length == 1 ? "0":"") + n; };
 	return function(client, from, to, message) {
 		var time, date = new Date(),
-		text = "{time} [{server}] {to} <{from}> {message}";
-		text = text.replace("{server}", client.opt.server)
-						 .replace("{from}", from)
-						 .replace("{to}", to)
-						 .replace("{message}", message);
-		time = "h:m:s".replace("h", date.getUTCHours())
-					  .replace("m", date.getUTCMinutes())
-					  .replace("s", date.getUTCSeconds());
-		text = text.replace("{time}", time);
-		
+		time = util.format("%s:%s:%s", f(date.getUTCHours()), f(date.getUTCMinutes()), f(date.getUTCSeconds()));
+		text = util.format("%s [%s] %s <%s> %s", time, client.opt.server, to, from, message);
 		console.log(text);
 	};
 };
