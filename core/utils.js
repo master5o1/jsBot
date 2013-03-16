@@ -101,6 +101,8 @@ Module.prototype.say = function(){
 		}
 		if (isAction) client.action(receiver, message);
 		else client.say(receiver, message);
+		
+		self.bot.emit('said', client, self.bot.details.nick, receiver, message);
 	};
 };
 

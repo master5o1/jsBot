@@ -19,6 +19,15 @@ config.servers = [
 		url: "irc.freenode.net",
 		channels: [
 			"#jsBot",
+			"#ualug",
+			"##bikes",
 		]
-	}
+	},
+	// {
+		// name: "PirateIRC",
+		// url: "london-uk.pirateirc.net",
+		// channels: [
+			// "#ppnz",
+		// ]
+	// }
 ];
