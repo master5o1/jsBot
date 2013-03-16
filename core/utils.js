@@ -19,11 +19,13 @@ Module.prototype.load = function(){
 	
 	self.reloadHandler = self.reload();
 	self.loadModuleHandler = self.loadModule();
+	self.unloadModuleHandler = self.unloadModule();
 	
 	self.helpHandler = self.help();
 	
 	self.bot.registerCommand('reload', self.reloadHandler, 'admin');
 	self.bot.registerCommand('load', self.loadModuleHandler, 'admin');
+	self.bot.registerCommand('unload', self.unloadModuleHandler, 'admin');
 
 	self.bot.registerCommand('help', self.helpHandler, false);
 	
@@ -34,6 +36,7 @@ Module.prototype.unload = function() {
 	
 	self.bot.deregisterCommand('reload', self.reloadHandler);
 	self.bot.deregisterCommand('load', self.loadModuleHandler);
+	self.bot.deregisterCommand('unload', self.unloadModuleHandler);
 	
 	self.bot.deregisterCommand('help', self.helpHandler);
 };
@@ -77,6 +80,30 @@ Module.prototype.reload = function(){
 			bot.unloadModule(module.name);
 			bot.loadModule(module.path, module.file);
 			message = "reloaded: " + module.name;
+		}
+		self.bot.emit('command_say', client, from, to, message.split(' '));
+	};
+};
+
+Module.prototype.unloadModule = function(){
+	var self = this;
+	return function(client, from, to, args) {
+		var bot = self.bot,
+			module, message,
+			reply = from;
+		module = bot.modules.filter(function(mod){
+			if (args.length == 0) { return false; }
+			return mod.name == args[0];
+		});
+		
+		if (args.length == 0) {
+			message = bot.help('reload', '<module>');
+		} else if (module.length == 0) {
+			message = "no module found named: " + args[0];
+		} else {
+			module = module[0];
+			bot.unloadModule(module.name);
+			message = "unloaded: " + module.name;
 		}
 		self.bot.emit('command_say', client, from, to, message.split(' '));
 	};
