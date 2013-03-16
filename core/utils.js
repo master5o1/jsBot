@@ -14,24 +14,31 @@ var Module = module.exports = function Module(bot){
 Module.prototype.load = function(){
 	var self = this;
 	
-	self.bot.registerCommand('join', self.join(), 'admin');
-	self.bot.registerCommand('part', self.part(), 'admin');
-	self.bot.registerCommand('reload', self.reload(), 'admin');
+	self.joinHandler = self.join();
+	self.partHandler = self.part();
+	self.reloadHandler = self.reload();
 	
-	self.bot.registerCommand('say', self.say(), false);
-	self.bot.registerCommand('help', self.help(), false);
+	self.sayHandler = self.say();
+	self.helpHandler = self.help();
+	
+	self.bot.registerCommand('join', self.joinHandler, 'admin');
+	self.bot.registerCommand('part', self.partHandler, 'admin');
+	self.bot.registerCommand('reload', self.reloadHandler, 'admin');
+	
+	self.bot.registerCommand('say', self.sayHandler, false);
+	self.bot.registerCommand('help', self.helpHandler, false);
 	
 };
 
 Module.prototype.unload = function() {
 	var self = this;
 	
-	self.bot.unregisterCommand('join');
-	self.bot.unregisterCommand('part');
-	self.bot.unregisterCommand('reload');
+	self.bot.deregisterCommand('join', self.joinHandler);
+	self.bot.deregisterCommand('part', self.partHandler);
+	self.bot.deregisterCommand('reload', self.reloadHandler);
 	
-	self.bot.unregisterCommand('say');
-	self.bot.unregisterCommand('help');
+	self.bot.deregisterCommand('say', self.sayHandler);
+	self.bot.deregisterCommand('help', self.helpHandler);
 };
 
 Module.prototype.join = function(){

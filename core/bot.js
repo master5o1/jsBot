@@ -61,10 +61,8 @@ Bot.prototype.messageParser = function(client) {
 		if (message.startsWith(bot.details.commandPrefix)) {
 			var args = message.split(' '),
 				command = args.shift().substring(bot.details.commandPrefix.length);
-			console.log('command_' + command, client.opt.server, from, to, args);
 			bot.emit('command_' + command, client, from, to, args);
 		} else {
-			console.log("message", client.opt.server, from, to, message);
 			bot.emit('message', client, from, to, message);
 		}
 	};
@@ -147,12 +145,12 @@ Bot.prototype.registerCommand = function(command, handler, permission) {
 	bot.addListener('command_' + command, handler);
 };
 
-Bot.prototype.unregisterCommand = function(command) {
+Bot.prototype.deregisterCommand = function(command, handler) {
 	var bot = this;
 	bot.commands = bot.commands.filter(function(com) {
 		return com.command != command;
 	});
-	bot.removeAllListeners('command_' + command);
+	bot.removeListener('command_' + command, handler);
 };
 
 Bot.prototype.help = function(command, help) {
