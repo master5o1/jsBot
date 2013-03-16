@@ -1,3 +1,5 @@
+var util = require('util');
+
 String.prototype.startsWith = function(start) {
 	return this.substring(0, start.length) == start;
 };
@@ -110,10 +112,17 @@ Module.prototype.help = function(){
 	var self = this;
 	return function(client, from, to, args) {
 		var message,
-			text = self.bot.commands.map(function(command){
-			return command.command;
-		}).join(' ');
-		message = "Available commands: " + text;
+			admin = self.bot.commands.filter(function(command){
+				return command.permission == 'admin';
+			}).map(function(command){
+				return command.command;
+			}).join(' '),
+			common = self.bot.commands.filter(function(command){
+				return command.permission != 'admin';
+			}).map(function(command){
+				return command.command;
+			}).join(' ');
+		message = util.format("Available commands: %s\nAdmin only: %s", common, admin);
 		self.say()(client, from, to, message.split(' '));
 	};
 };
