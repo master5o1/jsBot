@@ -24,10 +24,7 @@ var Bot = module.exports = function Bot(config){
 	
 	// list of modules (including core).
 	bot.modules = [];
-	
-	bot.addListener('command_reload', function(client, from, to, args){
-		bot.reload(client, from, to, args);
-	});
+	bot.commands = [];
 	
 	bot.addServers(config.servers);
 }
@@ -101,11 +98,8 @@ Bot.prototype.loadModule = function(path, file, index) {
 		module;
 	if (file == 'bot.js') return;
 	console.log('loading', (isCore ? 'core:' : 'module:'), file);
-	
-	Object.keys(require.cache).forEach(function(key) {
-		if (require(key) == require(path + '/' + file))
-			delete require.cache[key];
-	});
+	var key = require.resolve(path + '/' + file);
+	delete require.cache[key];
 	module = require(path + '/' + file);
 	bot.addModule(module, file, isCore);
 };
@@ -143,31 +137,22 @@ Bot.prototype.loadModules = function() {
 	});
 };
 
-// I want to move this to utils.js
-Bot.prototype.reload = function(client, from, to, args) {
-	var bot = this,
-		module, message,
-		reply = from;
-	console.log('reload command', from, to, args);
-	
-	module = bot.modules.filter(function(mod){
-		if (args.length == 0) { return false; }
-		return mod.name == args[0];
+Bot.prototype.registerCommand = function(command, handler, permission) {
+	var bot = this;
+	bot.commands.push({
+		command: command,
+		handler: handler,
+		permission: permission
 	});
-	
-	if (args.length == 0) {
-		message = bot.help('reload', '<module>');
-	} else if (module.length == 0) {
-		message = "no module found named: " + args[0];
-	} else {
-		module = module[0];
-		console.log(module);
-		bot.unloadModule(module.name);
-		bot.loadModule(module.path, module.file);
-		message = "reloaded: " + module.name;
-	}
-	console.log(message);
-	bot.emit('command_say', client, from, to, message.split(' '));
+	bot.addListener('command_' + command, handler);
+};
+
+Bot.prototype.unregisterCommand = function(command) {
+	var bot = this;
+	bot.commands = bot.commands.filter(function(com) {
+		return com.command != command;
+	});
+	bot.removeAllListeners('command_' + command);
 };
 
 Bot.prototype.help = function(command, help) {
