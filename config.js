@@ -32,5 +32,6 @@ config.servers = [
 ];
 
 config.modules = [
-	"butts.js"
+	"butts.js",
+	"lolcryption.js"
 ];
