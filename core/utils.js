@@ -16,18 +16,14 @@ var Module = module.exports = function Module(bot){
 Module.prototype.load = function(){
 	var self = this;
 	
-	self.joinHandler = self.join();
-	self.partHandler = self.part();
 	self.reloadHandler = self.reload();
+	self.loadModuleHandler = self.loadModule();
 	
-	self.sayHandler = self.say();
 	self.helpHandler = self.help();
 	
-	self.bot.registerCommand('join', self.joinHandler, 'admin');
-	self.bot.registerCommand('part', self.partHandler, 'admin');
 	self.bot.registerCommand('reload', self.reloadHandler, 'admin');
-	
-	self.bot.registerCommand('say', self.sayHandler, false);
+	self.bot.registerCommand('load', self.loadModuleHandler, 'admin');
+
 	self.bot.registerCommand('help', self.helpHandler, false);
 	
 };
@@ -35,77 +31,10 @@ Module.prototype.load = function(){
 Module.prototype.unload = function() {
 	var self = this;
 	
-	self.bot.deregisterCommand('join', self.joinHandler);
-	self.bot.deregisterCommand('part', self.partHandler);
 	self.bot.deregisterCommand('reload', self.reloadHandler);
+	self.bot.deregisterCommand('load', self.loadModuleHandler);
 	
-	self.bot.deregisterCommand('say', self.sayHandler);
 	self.bot.deregisterCommand('help', self.helpHandler);
-};
-
-Module.prototype.join = function(){
-	var self = this;
-	return function(client, from, to, args) {
-		var channel;
-		if (args.length == 0) {
-			message = self.bot.help("join", "[#channel]");
-			self.say()(client, from, to, message.split(' '));
-			return;
-		}
-		channel = args[0];
-		client.join(channel);
-	};
-};
-
-Module.prototype.part = function(){
-	var self = this;
-	return function(client, from, to, args) {
-		var channel;
-		if (args.length == 0) {
-			message = self.bot.help("part", "[#channel]");
-			self.say(client, from, to, message.split(' '));
-			return;
-		}
-		channel = args[0];
-		if (!channel && to.startsWith('#')) channel = to;
-		client.part(channel);
-	};
-};
-
-Module.prototype.say = function(){
-	var self = this,
-		isAction = false;
-	return function(client, from, to, args) {
-		var receiver, message;
-		message = args.join(' ');
-		if (args.length == 0) {
-			message = self.bot.help("say", "<message>");
-		}
-		if (to == self.bot.details.nick) {
-			receiver = from;
-			r = from;
-		} else {
-			receiver = to;
-			r = to;
-		}
-		
-		if ((args[0] || '_').startsWith('#')) {
-			receiver = args.shift();
-			if (typeof client.chans[receiver] == 'undefined') {
-				args.unshift(receiver);
-				receiver = r;
-			}
-			message = args.join(' ');
-		} else if (args[0] == '/me') {
-			args.shift();
-			isAction = true;
-			message = args.join(' ');
-		}
-		if (isAction) client.action(receiver, message);
-		else client.say(receiver, message);
-		
-		self.bot.emit('said', client, self.bot.details.nick, receiver, message);
-	};
 };
 
 Module.prototype.help = function(){
@@ -123,7 +52,7 @@ Module.prototype.help = function(){
 				return command.command;
 			}).join(' ');
 		message = util.format("Available commands: %s\nAdmin only: %s", common, admin);
-		self.say()(client, from, to, message.split(' '));
+		self.bot.emit('command_say', client, from, to, message.split(' '));
 	};
 };
 
@@ -148,6 +77,74 @@ Module.prototype.reload = function(){
 			bot.loadModule(module.path, module.file);
 			message = "reloaded: " + module.name;
 		}
-		self.say()(client, from, to, message.split(' '));
+		self.bot.emit('command_say', client, from, to, message.split(' '));
+	};
+};
+
+/*
+Bot.prototype.loadModules = function() {
+	var bot = this;
+	Object.keys(module_paths).forEach(function(path){
+		fs.readdir(path, function(err, files){
+			if (err) {
+				console.log('fs.readdir error', err);
+				return;
+			}
+			files.forEach(function(file, index) {
+				bot.loadModule(module_paths[path], file, index);
+			}, bot);
+		});
+	});
+};
+*/
+
+Module.prototype.loadModule = function(){
+	var self = this,
+		module_paths = {
+			'./core' : './',
+			'./modules' : '../modules'
+		};
+	return function(client, from, to, args) {
+		var bot = self.bot,
+			module, message = "",
+			reply = from;
+		module = bot.modules.filter(function(mod){
+			if (args.length == 0) { return false; }
+			return mod.name == args[0];
+		});
+		
+		if (args.length == 0) {
+			message = bot.help('load', '<module>');
+		} else if (module.length != 0) {
+			message = "Module " + args[0] + " already loaded.";
+		} else {
+			// bot.loadModule(module.path, module.file);
+			Object.keys(module_paths).filter(function(path){
+				if (typeof args[1] != 'undefined') {
+					if (args[1] == 'core')
+						return path == './core';
+					else
+						return path == './modules';
+				}
+				return true;
+			}).forEach(function(path){
+				fs.readdir(path, function(err, files){
+					if (err) {
+						console.log('fs.readdir error', err);
+						return;
+					}
+					message = "";
+					files.filter(function(file, index){
+						return args[0] == (file + '.js');
+					}).forEach(function(file, index) {
+						bot.loadModule(module_paths[path], file, index);
+						message = "loaded: " + module.name;
+					}, bot);
+				});
+			});
+		}
+		if (message.length == 0 && args.length > 0)
+			message = "Module file for '" + args[0] + "' not found.";
+		self.bot.emit('command_say', client, from, to, message.split(' '));
 	};
 };

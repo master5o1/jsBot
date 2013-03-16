@@ -20,7 +20,7 @@ config.servers = [
 		channels: [
 			"#jsBot",
 			"#ualug",
-			"##bikes",
+			// "##bikes",
 		]
 	},
 	// {
