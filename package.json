@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://master5o1@bitbucket.org/master5o1/jsbot.git"
+    "url": "git://github.com/master5o1/jsBot.git"
   },
   "keywords": [
     "irc",
@@ -20,5 +20,4 @@
   ],
   "author": "Jason Schwarzenberger <jason@master5o1.com>",
   "license": "GPLv2",
-  "gitHead": "8edf9615ff9990ec2b5b470c70a259d972219dc7"
 }
