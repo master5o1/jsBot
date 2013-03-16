@@ -20,7 +20,6 @@ config.servers = [
 		channels: [
 			"#jsBot",
 			"#ualug",
-			// "##bikes",
 		]
 	},
 	{
@@ -30,4 +29,8 @@ config.servers = [
 			// "#ppnz",
 		]
 	}
+];
+
+config.modules = [
+	"butts.js"
 ];

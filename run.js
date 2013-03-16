@@ -3,4 +3,7 @@ var config = require('./config'),
 
 var jsBot = new Bot(config);
 
-jsBot.loadModules();
+jsBot.loadModules(true);
+config.modules.forEach(function(file){
+	jsBot.loadModule('../modules/', file);
+});

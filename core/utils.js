@@ -1,4 +1,5 @@
-var util = require('util');
+var util = require('util'),
+	fs = require('fs');
 
 String.prototype.startsWith = function(start) {
 	return this.substring(0, start.length) == start;
@@ -89,7 +90,10 @@ Module.prototype.loadModule = function(){
 		};
 	return function(client, from, to, args) {
 		var bot = self.bot,
-			module, message = "",
+			module,
+			keys = Object.keys(module_paths),
+			found = false,
+			message = "",
 			reply = from;
 		module = bot.modules.filter(function(mod){
 			if (args.length == 0) { return false; }
@@ -101,32 +105,30 @@ Module.prototype.loadModule = function(){
 		} else if (module.length != 0) {
 			message = "Module " + args[0] + " already loaded.";
 		} else {
-			Object.keys(module_paths).filter(function(path){
-				if (typeof args[1] != 'undefined') {
-					if (args[1] == 'core')
-						return path == './core';
-					else
-						return path == './modules';
-				}
-				return true;
-			}).forEach(function(path){
+			message = "";
+			keys.forEach(function(path, index){
 				fs.readdir(path, function(err, files){
 					if (err) {
 						console.log('fs.readdir error', err);
 						return;
 					}
-					message = "";
-					files.filter(function(file, index){
-						return args[0] == (file + '.js');
-					}).forEach(function(file, index) {
-						bot.loadModule(module_paths[path], file, index);
-						message = "loaded: " + module.name;
+					var filtered_files = files.filter(function(file){
+						return file == (args[0] + '.js');
+					});
+					filtered_files.forEach(function(file, fIndex) {
+						console.log(file, args[0]);
+						bot.loadModule(module_paths[path], file, fIndex);
+						message = "loaded: " + args[0];
+						self.bot.emit('command_say', client, from, to, message.split(' '));
+						message = "";
 					}, bot);
+					if (filtered_files.length == 0 && index == keys.length - 1) {
+						message = "Module file for '" + args[0] + "' not found.";
+					}
 				});
 			});
 		}
-		if (message.length == 0 && args.length > 0)
-			message = "Module file for '" + args[0] + "' not found.";
-		self.bot.emit('command_say', client, from, to, message.split(' '));
+		if (message.length > 0)
+			self.bot.emit('command_say', client, from, to, message.split(' '));
 	};
 };

@@ -113,13 +113,18 @@ Bot.prototype.unloadModule = function(name) {
 	});
 };
 
-Bot.prototype.loadModules = function() {
-	var bot = this;
-	var module_paths = {
-		'./core' : './',
-		'./modules' : '../modules'
-	};
-	Object.keys(module_paths).forEach(function(path){
+Bot.prototype.loadModules = function(core_only) {
+	var bot = this,
+		paths,
+		module_paths = {
+			'./core' : './',
+			'./modules' : '../modules'
+		};
+	core_only = core_only || false;
+	paths = Object.keys(module_paths)
+	if (core_only)
+		paths = ['./core'];
+	paths.forEach(function(path){
 		fs.readdir(path, function(err, files){
 			if (err) {
 				console.log('fs.readdir error', err);
