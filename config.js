@@ -23,11 +23,11 @@ config.servers = [
 			// "##bikes",
 		]
 	},
-	// {
-		// name: "PirateIRC",
-		// url: "london-uk.pirateirc.net",
-		// channels: [
+	{
+		name: "PirateIRC",
+		url: "london-uk.pirateirc.net",
+		channels: [
 			// "#ppnz",
-		// ]
-	// }
+		]
+	}
 ];
