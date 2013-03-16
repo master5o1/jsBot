@@ -81,23 +81,6 @@ Module.prototype.reload = function(){
 	};
 };
 
-/*
-Bot.prototype.loadModules = function() {
-	var bot = this;
-	Object.keys(module_paths).forEach(function(path){
-		fs.readdir(path, function(err, files){
-			if (err) {
-				console.log('fs.readdir error', err);
-				return;
-			}
-			files.forEach(function(file, index) {
-				bot.loadModule(module_paths[path], file, index);
-			}, bot);
-		});
-	});
-};
-*/
-
 Module.prototype.loadModule = function(){
 	var self = this,
 		module_paths = {
@@ -118,7 +101,6 @@ Module.prototype.loadModule = function(){
 		} else if (module.length != 0) {
 			message = "Module " + args[0] + " already loaded.";
 		} else {
-			// bot.loadModule(module.path, module.file);
 			Object.keys(module_paths).filter(function(path){
 				if (typeof args[1] != 'undefined') {
 					if (args[1] == 'core')

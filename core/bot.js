@@ -17,12 +17,9 @@ var Bot = module.exports = function Bot(config){
 		admin: config.users.admin
 	};
 	
-	// Bot is multi-server orientated so holds a
-	// list of the servers that it is connected to.
 	bot.servers = [];
 	bot.users = [];
 	
-	// list of modules (including core).
 	bot.modules = [];
 	bot.commands = [];
 	
