@@ -46,6 +46,8 @@ Module.prototype.file = function() {
 		text = util.format("[%s] <%s>\t%s\r\n", time, from, message);
 
 		sender = to.startsWith('#') ? to : from;
+		sender = (sender == self.bot.details.nick) ? to : sender;
+		
 		file = util.format("%s-%s-%s.txt", date.getUTCFullYear(), f((date.getUTCMonth() + 1) % 12), f(date.getUTCDate()));
 		
 		path = util.format("log/%s", client.opt.server);
