@@ -8,7 +8,7 @@ var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
 	
-	self.probability = 0.85;
+	self.probability = 0.25;
 	
 	self.dbMarkov = self.bot.dbDatabase.collection('markov');
 	
@@ -94,7 +94,7 @@ Module.prototype.probable = function(){
 	var self = this;
 	return function(client, from, to, message) {
 		var receiver = to.startsWith('#') ? to : from;
-		if (Math.random() > self.probability)
+		if (Math.random() < self.probability)
 			self.bot.emit('command_markov', client, self.bot.details.nick, receiver, []);
 	};
 };

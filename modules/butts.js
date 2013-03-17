@@ -7,7 +7,7 @@ var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
 	
-	self.probability = 0.80;
+	self.probability = 0.25;
 	
 	self.load();
 	
@@ -65,7 +65,7 @@ Module.prototype.butt = function(){
 		
 		if (text_array.join(' ') == message) { return; }
 		
-		if (Math.random() > self.probability)
+		if (Math.random() < self.probability)
 			self.bot.emit('command_say', client, self.bot.details.nick, receiver, text_array);
 	};
 };
