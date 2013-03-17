@@ -20,6 +20,6 @@
     "bot"
   ],
   "author": "Jason Schwarzenberger <jason@master5o1.com>",
-  "license": "GPLv2",
+  "license": "MIT",
   "gitHead": "8edf9615ff9990ec2b5b470c70a259d972219dc7"
 }
