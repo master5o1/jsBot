@@ -68,10 +68,10 @@ Module.prototype.part = function(){
 };
 
 Module.prototype.say = function(){
-	var self = this,
-		isAction = false;
+	var self = this;
 	return function(client, from, to, args) {
-		var receiver, message;
+		var receiver, message,
+			isAction = false;
 		message = args.join(' ');
 		if (args.length == 0) {
 			message = self.bot.help("say", "<message>");
@@ -89,6 +89,11 @@ Module.prototype.say = function(){
 			if (typeof client.chans[receiver] == 'undefined') {
 				args.unshift(receiver);
 				receiver = r;
+			} else {
+				if (args[0] == '/me') {
+					args.shift();
+					isAction = true;
+				}
 			}
 			message = args.join(' ');
 		} else if (args[0] == '/me') {
