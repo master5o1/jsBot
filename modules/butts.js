@@ -18,10 +18,6 @@ Module.prototype.load = function(){
 	var self = this;
 	
 	self.buttHandler = self.butt();
-	self.buttHelper = self.buttHelp();
-	
-	self.bot.registerCommand('butts', self.buttHelper);
-	
 	self.bot.addListener('message', self.buttHandler);
 };
 
@@ -29,19 +25,6 @@ Module.prototype.unload = function() {
 	var self = this;
 	
 	self.bot.removeListener('message', self.buttHandler);
-	
-	self.bot.deregisterCommand('butts', self.buttHelper);
-};
-
-Module.prototype.buttHelp = function(){
-	var self = this;
-	return function(client, from, to, args){
-		var receiver = to.startsWith('#') ? to : from;
-		
-		text = self.bot.help('Butts', 'An ' + self.probability*100 + '% chance of echoing a line with some words replaced.', true);
-		
-		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
-	};
 };
 
 Module.prototype.butt = function(){
