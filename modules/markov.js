@@ -27,7 +27,7 @@ Module.prototype.load = function(){
 	
 	self.bot.registerCommand('markov', self.builderHandler);
 	self.bot.addListener('message', self.probabilityHandler);
-	// self.bot.addListener('message', self.markovReplyHandler);
+	self.bot.addListener('message', self.markovReplyHandler);
 	self.bot.addListener('message', self.gatherHandler);
 };
 
@@ -36,7 +36,7 @@ Module.prototype.unload = function() {
 	
 	self.bot.deregisterCommand('markov', self.builderHandler);
 	self.bot.removeListener('message', self.probabilityHandler);
-	// self.bot.removeListener('message', self.markovReplyHandler);
+	self.bot.removeListener('message', self.markovReplyHandler);
 	self.bot.removeListener('message', self.gatherHandler);
 };
 
