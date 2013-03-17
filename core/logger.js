@@ -1,5 +1,6 @@
 var util = require('util')
-	fs = require('fs');
+	fs = require('fs'),
+	Mongolian = require('mongolian');
 
 String.prototype.startsWith = function(start) {
 	return this.substring(0, start.length) == start;
@@ -9,6 +10,8 @@ var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
 	
+	self.dbLogs = self.bot.dbDatabase.collection('logs');
+	
 	self.load();
 	
 	console.log('core module logger loaded');
@@ -17,24 +20,42 @@ var Module = module.exports = function Module(bot){
 Module.prototype.load = function(){
 	var self = this;
 	
-	self.consoleHandler = self.console();
+	self.dbHandler = self.database();
 	self.fileHandler = self.file();
+	self.consoleHandler = self.console();
 	
-	self.bot.addListener('message', self.consoleHandler);
+	self.bot.addListener('message', self.dbHandler);
 	self.bot.addListener('message', self.fileHandler);
+	self.bot.addListener('message', self.consoleHandler);
 	
-	self.bot.addListener('said', self.consoleHandler);
+	self.bot.addListener('said', self.dbHandler);
 	self.bot.addListener('said', self.fileHandler);
+	self.bot.addListener('said', self.consoleHandler);
 };
 
 Module.prototype.unload = function() {
 	var self = this;
 	
-	self.bot.removeListener('message', self.consoleHandler);
+	self.bot.removeListener('message', self.dbHandler);
 	self.bot.removeListener('message', self.fileHandler);
+	self.bot.removeListener('message', self.consoleHandler);
 	
-	self.bot.removeListener('said', self.consoleHandler);
+	self.bot.removeListener('said', self.dbHandler);
 	self.bot.removeListener('said', self.fileHandler);
+	self.bot.removeListener('said', self.consoleHandler);
+};
+
+Module.prototype.database = function(){
+	var self = this;
+	return function(client, from, to, message) {
+		self.dbLogs.insert({
+			date: new Date(),
+			server: client.opt.server,
+			from: from,
+			to: to,
+			message: message
+		});
+	};
 };
 
 Module.prototype.file = function() {

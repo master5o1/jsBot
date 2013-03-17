@@ -14,4 +14,5 @@ License text: http://www.gnu.org/licenses/gpl-2.0.html
 Requirements
 ------------
 * Node.js (0.10.0)
-* Node-IRC (0.3.6)
+* Node-IRC (~0.3.6)
+* Mongolian (~0.1.18)

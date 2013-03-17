@@ -1,6 +1,7 @@
 var EventEmitter = require('events').EventEmitter,
 	irc = require('irc'),
-	fs = require('fs');
+	fs = require('fs'),
+	Mongolian = require('mongolian');
 
 String.prototype.startsWith = function(start) {
 	return this.substring(0, start.length) == start;
@@ -16,6 +17,9 @@ var Bot = module.exports = function Bot(config){
 		banned: config.users.banned,
 		admin: config.users.admin
 	};
+	
+	bot.dbServer = new Mongolian();
+	bot.dbDatabase = bot.dbServer.db('jsBot');
 	
 	bot.servers = [];
 	bot.users = [];
