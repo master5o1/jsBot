@@ -32,6 +32,7 @@ config.servers = [
 ];
 
 config.modules = [
+	"markov.js",
+	"lolcryption.js",
 	"butts.js",
-	"lolcryption.js"
 ];

@@ -7,7 +7,7 @@ var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
 	
-	self.probability = 0.25;
+	self.probability = 0.15;
 	
 	self.load();
 	

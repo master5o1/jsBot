@@ -8,7 +8,7 @@ var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
 	
-	self.probability = 0.25;
+	self.probability = 0.15;
 	
 	self.dbMarkov = self.bot.dbDatabase.collection('markov');
 	
@@ -22,10 +22,12 @@ Module.prototype.load = function(){
 	
 	self.builderHandler = self.builder();
 	self.probabilityHandler = self.probable();
+	self.markovReplyHandler = self.markovReply();
 	self.gatherHandler = self.gather();
 	
 	self.bot.registerCommand('markov', self.builderHandler);
 	self.bot.addListener('message', self.probabilityHandler);
+	// self.bot.addListener('message', self.markovReplyHandler);
 	self.bot.addListener('message', self.gatherHandler);
 };
 
@@ -34,15 +36,20 @@ Module.prototype.unload = function() {
 	
 	self.bot.deregisterCommand('markov', self.builderHandler);
 	self.bot.removeListener('message', self.probabilityHandler);
+	// self.bot.removeListener('message', self.markovReplyHandler);
 	self.bot.removeListener('message', self.gatherHandler);
 };
 
 Module.prototype.builder = function(){
 	var self = this;
 	return function(client, from, to, args){
-		var dict = {},
+		var reply = '',
+			dict = {},
 			receiver = to.startsWith('#') ? to : from;
 		// console.log('Building Markov String');
+		
+		if (args.length > 0 && args[0])
+			reply = from + ':';
 		
 		function build_string(dict, length) {
 			var dict_keys = [];
@@ -69,8 +76,9 @@ Module.prototype.builder = function(){
 					if (err) return;
 					if (data.length == 0) {
 						if (dict) {
-							var build_str = build_string(dict);
-							self.bot.emit('command_say', client, self.bot.details.nick, receiver, build_str.split(' '));
+							var build_str = build_string(dict).split(' ');
+							if (reply.length > 0) build_str.unshift(reply);
+							self.bot.emit('command_say', client, self.bot.details.nick, receiver, build_str);
 						}
 						return
 					};
@@ -93,9 +101,16 @@ Module.prototype.builder = function(){
 Module.prototype.probable = function(){
 	var self = this;
 	return function(client, from, to, message) {
-		var receiver = to.startsWith('#') ? to : from;
 		if (Math.random() < self.probability)
-			self.bot.emit('command_markov', client, self.bot.details.nick, receiver, []);
+			self.bot.emit('command_markov', client, from, to, []);
+	};
+};
+
+Module.prototype.markovReply = function(){
+	var self = this;
+	return function(client, from, to, message) {
+		if (message.split(' ')[0].startsWith(self.bot.details.nick))
+			self.bot.emit('command_markov', client, from, to, [true]);
 	};
 };
 
