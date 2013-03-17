@@ -155,7 +155,11 @@ Bot.prototype.deregisterCommand = function(command, handler) {
 	bot.removeListener('command_' + command, handler);
 };
 
-Bot.prototype.help = function(command, help) {
+Bot.prototype.help = function(command, help, isFilter) {
 	var bot = this;
-	return 'Usage: ' + bot.details.commandPrefix + command + ' ' + help;
+	isFilter = isFilter || false;
+	if (isFilter)
+		return command + ' filter: ' + help;
+	else
+		return 'Usage: ' + bot.details.commandPrefix + command + ' ' + help;
 };

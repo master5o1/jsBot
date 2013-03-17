@@ -38,7 +38,7 @@ Module.prototype.buttHelp = function(){
 	return function(client, from, to, args){
 		var receiver = to.startsWith('#') ? to : from;
 		
-		text = self.bot.help('butts', 'An ' + self.probability*100 + '% chance of echoing a line with some words replaced.');
+		text = self.bot.help('Butts', 'An ' + self.probability*100 + '% chance of echoing a line with some words replaced.', true);
 		
 		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
 	};

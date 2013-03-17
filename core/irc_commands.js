@@ -47,6 +47,7 @@ Module.prototype.join = function(){
 		}
 		channel = args[0];
 		client.join(channel);
+		console.log('Joined channel', channel, 'on server', client.opt.server);
 	};
 };
 
@@ -62,6 +63,7 @@ Module.prototype.part = function(){
 		channel = args[0];
 		if (!channel && to.startsWith('#')) channel = to;
 		client.part(channel);
+		console.log('Parted channel', channel, 'on server', client.opt.server);
 	};
 };
 

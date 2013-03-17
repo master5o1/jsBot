@@ -67,8 +67,15 @@ Module.prototype.lolcrypt = function(decrypt){
 	return function(client, from, to, args){
 		var text, receiver = to.startsWith('#') ? to : from;
 		
-		text = args.join(' ')[decrypt ? 'enlolcrypt' : 'delolcrypt']();
-		
+		if (args.length == 0) {
+			if (decrypt) {
+				text = self.bot.help('delolcrypt','<ciphertext>');
+			} else {
+				text = self.bot.help('enlolcrypt','<plaintext>');
+			}
+		} else {
+			text = args.join(' ')[decrypt ? 'enlolcrypt' : 'delolcrypt']();
+		}
 		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
 	};
 };
