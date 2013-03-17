@@ -6,6 +6,8 @@ config.bot = {
 	commandPrefix: '.'
 };
 
+// List of hostmasks that are to be
+// considered as admin or banned.
 config.users = {
 	admin: [
 		"unaffiliated/master5o1"
@@ -31,6 +33,7 @@ config.servers = [
 	}
 ];
 
+// Modules to be loaded on startup.
 config.modules = [
 	"markov.js",
 	"lolcryption.js",
