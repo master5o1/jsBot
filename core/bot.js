@@ -63,6 +63,7 @@ Bot.prototype.messageParser = function(client) {
 			var args = message.split(' '),
 				command = args.shift().substring(bot.details.commandPrefix.length);
 			bot.emit('command_' + command, client, from, to, args);
+			bot.emit('command', client, from, to, message.split(' '));
 		} else {
 			bot.emit('message', client, from, to, message);
 		}

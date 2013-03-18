@@ -31,6 +31,10 @@ Module.prototype.load = function(){
 	self.bot.addListener('said', self.dbHandler);
 	self.bot.addListener('said', self.fileHandler);
 	self.bot.addListener('said', self.consoleHandler);
+	
+	self.bot.addListener('command', self.dbHandler);
+	self.bot.addListener('command', self.fileHandler);
+	self.bot.addListener('command', self.consoleHandler);
 };
 
 Module.prototype.unload = function() {
@@ -43,6 +47,10 @@ Module.prototype.unload = function() {
 	self.bot.removeListener('said', self.dbHandler);
 	self.bot.removeListener('said', self.fileHandler);
 	self.bot.removeListener('said', self.consoleHandler);
+	
+	self.bot.removeListener('command', self.dbHandler);
+	self.bot.removeListener('command', self.fileHandler);
+	self.bot.removeListener('command', self.consoleHandler);
 };
 
 Module.prototype.database = function(){

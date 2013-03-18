@@ -8,7 +8,7 @@ var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
 	
-	self.probability = 0.05;
+	self.probability = 0.02;
 	
 	self.dbMarkov = self.bot.dbDatabase.collection('markov');
 	
