@@ -20,12 +20,14 @@ Module.prototype.load = function(){
 	self.reloadHandler = self.reload();
 	self.loadModuleHandler = self.loadModule();
 	self.unloadModuleHandler = self.unloadModule();
+	self.listModulesHandler = self.listModules();
 	
 	self.helpHandler = self.help();
 	
 	self.bot.registerCommand('reload', self.reloadHandler, 'admin');
 	self.bot.registerCommand('load', self.loadModuleHandler, 'admin');
 	self.bot.registerCommand('unload', self.unloadModuleHandler, 'admin');
+	self.bot.registerCommand('lsmod', self.listModulesHandler, 'admin');
 
 	self.bot.registerCommand('help', self.helpHandler, false);
 	
@@ -37,6 +39,7 @@ Module.prototype.unload = function() {
 	self.bot.deregisterCommand('reload', self.reloadHandler);
 	self.bot.deregisterCommand('load', self.loadModuleHandler);
 	self.bot.deregisterCommand('unload', self.unloadModuleHandler);
+	self.bot.deregisterCommand('lsmod', self.listModulesHandler);
 	
 	self.bot.deregisterCommand('help', self.helpHandler);
 };
@@ -154,6 +157,60 @@ Module.prototype.loadModule = function(){
 					}
 				});
 			});
+		}
+		if (message.length > 0)
+			self.bot.emit('command_say', client, from, to, message.split(' '));
+	};
+};
+
+Module.prototype.listModules = function(){
+	var self = this,
+		module_paths = {
+			'./core' : './',
+			'./modules' : '../modules'
+		};
+	return function(client, from, to, args) {
+		var bot = self.bot,
+			keys = Object.keys(module_paths),
+			count = 0,
+			message = "",
+			reply = from,
+			modules = [],
+			path = "";
+		
+		for (var _index = 0; _index < keys.length; _index++) {
+			path = keys[_index];
+			fs.readdir(path, (function(path){
+				return function(err, files){
+					if (err) {
+						console.log('fs.readdir error', err);
+						return;
+					}
+					var file_count = 0;
+					for (var index = 0; index < files.length; index++) {
+						var file = files[index];
+						file_count++; 
+						if (file == 'bot.js') { continue; }
+						var isCore = path == './core' ? true : false;
+						var isLoaded = self.bot.modules.some(function(mod){ return (mod.name + '.js') == file });
+						modules.push({ name: file.replace('.js', ''), core: isCore, loaded: isLoaded });
+						if (count == keys.length - 1 && index == files.length - 1) {
+							message = "Modules:\n";
+							message += modules.map(function(mod){
+								return "{name} ({loaded},{core})"
+									.replace("{name}", mod.name)
+									.replace("{loaded}", mod.loaded ? 'loaded' : '')
+									.replace("{core}", mod.core ? 'core' : '')
+									.replace(",", mod.loaded && mod.core ? ', ' : '')
+									.replace('()', '');
+							}).join ("\n");
+							self.bot.emit('command_say', client, from, to, message.split(' '));
+							message = "";
+						}
+					}
+					count++;
+				}
+			})(path));
 		}
 		if (message.length > 0)
 			self.bot.emit('command_say', client, from, to, message.split(' '));
