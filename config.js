@@ -20,7 +20,7 @@ config.servers = [
 		name: "Freenode",
 		url: "irc.freenode.net",
 		channels: [
-			"#jsBot",
+			"##jsbot",
 			"#ualug",
 		]
 	},
