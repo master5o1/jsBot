@@ -9,6 +9,7 @@ var Module = module.exports = function Module(bot){
 	self.bot = bot;
 	
 	self.probability = 0.02;
+	self.max_words = 50;
 	
 	self.dbMarkov = self.bot.dbDatabase.collection('markov');
 	
@@ -53,7 +54,7 @@ Module.prototype.builder = function(){
 		
 		function build_string(dict, length) {
 			var dict_keys = [];
-			length = length || 100;
+			length = length || self.max_words;
 			for (var k in dict) { dict_keys.push(k); }
 			var start_key = Math.round(Math.random()*dict_keys.length)%dict_keys.length;
 			var key = dict_keys[start_key];
