@@ -82,7 +82,7 @@ Module.prototype.file = function() {
 		path = util.format("log/%s", client.opt.server);
 		if (!fs.existsSync(path)) fs.mkdirSync(path);
 		
-		path = util.format("%s/%s", path, sender);
+		path = util.format("%s/%s", path, sender.replace(/[\\\[\]\{\}\^`\|]/g, '_'));
 		if (!fs.existsSync(path)) fs.mkdirSync(path);
 		
 		fs.appendFile(path + '/' + file, text);
