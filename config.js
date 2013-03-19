@@ -22,7 +22,6 @@ config.servers = [
 		channels: [
 			"##jsbot",
 			"##master5o1",
-			"#ualug",
 		]
 	},
 	{
@@ -38,5 +37,4 @@ config.servers = [
 config.modules = [
 	"markov.js",
 	"lolcryption.js",
-	"butts.js",
 ];
