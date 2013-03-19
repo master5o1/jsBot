@@ -13,7 +13,7 @@ var dbDatabase = dbServer.db('jsBot');
 var dbMarkov = dbDatabase.collection('markov');
 
 fs.readFile(filename, function(err, data) {
-	var lines = data.toString().split('\r?\n');
+	var lines = data.toString().split(/\r?\n/);
 	lines.forEach(function(line, index){
 		generate_keys(line, index, lines.length);
 	});
