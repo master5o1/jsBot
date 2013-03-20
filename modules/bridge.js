@@ -23,7 +23,7 @@ Module.prototype.load = function(){
 		
 	self.bridgeHandler = self.bridge();
 	
-	self.bot.registerCommand('bridge', self.bridgeCommandHandler);
+	self.bot.registerCommand('bridge', self.bridgeCommandHandler, 'admin');
 	// self.bot.registerCommand('unbridge', self.unbridgeHandler);
 	self.bot.addListener('message', self.bridgeHandler);
 };
