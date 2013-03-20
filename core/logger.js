@@ -56,6 +56,7 @@ Module.prototype.unload = function() {
 Module.prototype.database = function(){
 	var self = this;
 	return function(client, from, to, message) {
+		if (Array.isArray(message)) { message = message.join(' '); }
 		self.dbLogs.insert({
 			date: new Date(),
 			server: client.opt.server,
@@ -69,6 +70,7 @@ Module.prototype.database = function(){
 Module.prototype.file = function() {
 	var self = this;
 	return function(client, from, to, message) {
+		if (Array.isArray(message)) { message = message.join(' '); }
 		var sender, time, path, file, date = new Date();
 		function f(n){ return ((""+n).length == 1 ? "0":"") + n; };
 		time = util.format("%s:%s:%s", f(date.getUTCHours()), f(date.getUTCMinutes()), f(date.getUTCSeconds()));
@@ -93,6 +95,7 @@ Module.prototype.console = function(){
 	var self = this;
 	return function(client, from, to, message) {
 		var time, date = new Date();
+		if (Array.isArray(message)) { message = message.join(' '); }
 		function f(n){ return ((""+n).length == 1 ? "0":"") + n; };
 		
 		time = util.format("%s:%s:%s", f(date.getUTCHours()), f(date.getUTCMinutes()), f(date.getUTCSeconds()));
