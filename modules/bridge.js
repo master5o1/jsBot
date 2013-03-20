@@ -44,12 +44,10 @@ Module.prototype.bridge = function(){
 		var text = "";
 		if (!to.startsWith('#')) return;
 		self.bridges.filter(function(bridge){
-			console.log(bridge.from.server.opt.server, client.opt.server, bridge.fromChannel, to);
 			return bridge.from.server.opt.server == client.opt.server
 					&& bridge.fromChannel.toLowerCase() == to.toLowerCase();
 		}).forEach(function(bridge){
-			console.log('>>>', bridge.from.server.opt.server, client.opt.server, bridge.fromChannel, to);
-			text = "[" + client.opt.server + "] <" + from + "> " + message
+			text = "[" + client.opt.server + "/" + to + "] <" + from + "> " + message
 			self.bot.emit('command_say', bridge.to.server, self.bot.details.nick, bridge.toChannel, text.split(' '));
 		});
 	};
