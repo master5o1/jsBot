@@ -196,7 +196,13 @@ Module.prototype.listModules = function(){
 						modules.push({ name: file.replace('.js', ''), core: isCore, loaded: isLoaded });
 						if (count == keys.length - 1 && index == files.length - 1) {
 							message = "Modules:\n";
-							message += modules.map(function(mod){
+							message += modules.sort(function(a, b){
+								var c = a.core ? 2 : 0;
+								var d = b.core ? 2 : 0;
+								a.loaded ? c++ : c;
+								b.loaded ? d++ : d;
+								return d - c;
+							}).map(function(mod){
 								return "{name} ({loaded},{core})"
 									.replace("{name}", mod.name)
 									.replace("{loaded}", mod.loaded ? 'loaded' : '')
