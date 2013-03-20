@@ -24,33 +24,25 @@ Module.prototype.load = function(){
 	self.fileHandler = self.file();
 	self.consoleHandler = self.console();
 	
-	self.bot.addListener('message', self.dbHandler);
-	self.bot.addListener('message', self.fileHandler);
-	self.bot.addListener('message', self.consoleHandler);
+	self.bot.addListener('logger', self.dbHandler);
+	self.bot.addListener('logger', self.fileHandler);
+	self.bot.addListener('logger', self.consoleHandler);
 	
 	self.bot.addListener('said', self.dbHandler);
 	self.bot.addListener('said', self.fileHandler);
 	self.bot.addListener('said', self.consoleHandler);
-	
-	self.bot.addListener('command', self.dbHandler);
-	self.bot.addListener('command', self.fileHandler);
-	self.bot.addListener('command', self.consoleHandler);
 };
 
 Module.prototype.unload = function() {
 	var self = this;
 	
-	self.bot.removeListener('message', self.dbHandler);
-	self.bot.removeListener('message', self.fileHandler);
-	self.bot.removeListener('message', self.consoleHandler);
+	self.bot.removeListener('logger', self.dbHandler);
+	self.bot.removeListener('logger', self.fileHandler);
+	self.bot.removeListener('logger', self.consoleHandler);
 	
 	self.bot.removeListener('said', self.dbHandler);
 	self.bot.removeListener('said', self.fileHandler);
 	self.bot.removeListener('said', self.consoleHandler);
-	
-	self.bot.removeListener('command', self.dbHandler);
-	self.bot.removeListener('command', self.fileHandler);
-	self.bot.removeListener('command', self.consoleHandler);
 };
 
 Module.prototype.database = function(){

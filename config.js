@@ -35,6 +35,7 @@ config.servers = [
 
 // Modules to be loaded on startup.
 config.modules = [
+	"bridge.js",
 	"markov.js",
 	"lolcryption.js",
 ];

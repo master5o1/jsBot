@@ -22,7 +22,7 @@ var Bot = module.exports = function Bot(config){
 	bot.dbDatabase = bot.dbServer.db('jsBot');
 	
 	bot.servers = [];
-	bot.users = [];
+	bot.users = {};
 	
 	bot.modules = [];
 	bot.commands = [];
@@ -58,15 +58,47 @@ Bot.prototype.addServer = function(server) {
 
 Bot.prototype.messageParser = function(client) {
 	var bot = this;
-	return function(from, to, message) {
-		if (message.startsWith(bot.details.commandPrefix)) {
-			var args = message.split(' '),
-				command = args.shift().substring(bot.details.commandPrefix.length);
-			bot.emit('command_' + command, client, from, to, args);
-			bot.emit('command', client, from, to, message.split(' '));
-		} else {
-			bot.emit('message', client, from, to, message);
+	var failure_responses = [
+		"ACCESS DENIED",
+		"Computer says no.",
+	];
+	var parseCommand = function(from, to, message){
+		var response = Math.round(Math.random() * (failure_responses.length + 1)) % failure_responses.length,
+			fail_response = failure_responses[response],
+			isAdmin = bot.details.admin.some(function(host){
+				return host == bot.users[from].host;
+			}),
+			isBanned = bot.details.banned.some(function(host){
+				return host == bot.users[from].host;
+			}),
+			args = message.split(' '),
+			command = args.shift().substring(bot.details.commandPrefix.length),
+			commands = bot.commands.filter(function(c){
+				return c.command == command;
+			});
+		if (commands.length == 0) return;
+		if (isBanned || (commands[0].permission == 'admin' && !isAdmin)) {
+			bot.emit('command_say', client, from, to, fail_response.split(' '));
+			return;
 		}
+		bot.emit('command_' + command, client, from, to, args);
+		bot.emit('command', client, from, to, message.split(' '));
+	};
+	return function(from, to, message) {
+		var args, command, commands;
+		bot.emit('logger', client, from, to, message);
+		if (!message.startsWith(bot.details.commandPrefix)) {
+			bot.emit('message', client, from, to, message);
+			return;
+		}
+		if (typeof bot.users[from] == 'undefined') {
+			client.whois(from, function(info){
+				bot.users[from] = info;
+				parseCommand(from, to, message);
+			});
+			return;
+		}
+		parseCommand(from, to, message);
 	};
 };
 
@@ -144,6 +176,7 @@ Bot.prototype.loadModules = function(core_only) {
 
 Bot.prototype.registerCommand = function(command, handler, permission) {
 	var bot = this;
+	permission = permission || false;
 	bot.commands.push({
 		command: command,
 		handler: handler,
