@@ -18,13 +18,31 @@ Module.prototype.load = function(){
 	var self = this;
 	
 	self.buttHandler = self.butt();
+	self.setProbabilityHandler = self.setProbability();
+	
+	self.bot.registerCommand('butts_prob', self.setProbabilityHandler);
 	self.bot.addListener('message', self.buttHandler);
 };
 
 Module.prototype.unload = function() {
 	var self = this;
-	
+	self.bot.deregisterCommand('butts_prob', self.setProbabilityHandler);
 	self.bot.removeListener('message', self.buttHandler);
+};
+
+Module.prototype.setProbability = function(){
+	var self = this;
+	return function(client, from, to, args) {
+		var receiver = to.startsWith('#') ? to : from;
+		var text = "Random butts probability is set to " + self.probability.toFixed(2) + ".";
+		if (args.length == 0) {
+			text = self.bot.help('butts_prob', "<float>");
+		} else if (/number/i.test(typeof parseFloat(args[0])) && ! /nan/i.test(parseFloat(args[0]).toString())) {
+			self.probability = parseFloat(args[0]);
+			text = "Random butts generation probability is set to " + self.probability.toFixed(2) + ".";
+		}
+		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
+	};
 };
 
 Module.prototype.butt = function(){

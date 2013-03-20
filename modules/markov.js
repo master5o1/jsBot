@@ -24,9 +24,11 @@ Module.prototype.load = function(){
 	self.builderHandler = self.builder();
 	self.probabilityHandler = self.probable();
 	self.markovReplyHandler = self.markovReply();
+	self.setProbHandler = self.setProbability();
 	self.gatherHandler = self.gather();
 	
 	self.bot.registerCommand('markov', self.builderHandler);
+	self.bot.registerCommand('markov_prob', self.setProbHandler);
 	self.bot.addListener('message', self.probabilityHandler);
 	self.bot.addListener('message', self.markovReplyHandler);
 	self.bot.addListener('message', self.gatherHandler);
@@ -36,6 +38,7 @@ Module.prototype.unload = function() {
 	var self = this;
 	
 	self.bot.deregisterCommand('markov', self.builderHandler);
+	self.bot.deregisterCommand('markov_prob', self.setProbHandler);
 	self.bot.removeListener('message', self.probabilityHandler);
 	self.bot.removeListener('message', self.markovReplyHandler);
 	self.bot.removeListener('message', self.gatherHandler);
@@ -112,6 +115,21 @@ Module.prototype.markovReply = function(){
 	return function(client, from, to, message) {
 		if (message.split(' ')[0].startsWith(self.bot.details.nick))
 			self.bot.emit('command_markov', client, from, to, [true]);
+	};
+};
+
+Module.prototype.setProbability = function(){
+	var self = this;
+	return function(client, from, to, args) {
+		var receiver = to.startsWith('#') ? to : from;
+		var text = "Random markov generation probability is set to " + self.probability.toFixed(2) + ".";
+		if (args.length == 0) {
+			text = self.bot.help('markov_prob', "<float>");
+		} else if (/number/i.test(typeof parseFloat(args[0])) && ! /nan/i.test(parseFloat(args[0]).toString())) {
+			self.probability = parseFloat(args[0]);
+			text = "Random markov generation probability is set to " + self.probability.toFixed(2) + ".";
+		}
+		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
 	};
 };
 
