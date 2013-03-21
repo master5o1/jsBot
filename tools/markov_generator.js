@@ -39,7 +39,7 @@ var generate_keys = function(message, _index, __count) {
 	};
 	
 	console.log(dict);
-	Object.keys(dict).forEach(function(key){
+	Object.keys(dict).forEach(function(key, _index){
 		dbMarkov.findOne({ key: key }, function(err, item){
 			var updated_words = [];
 			if (typeof item == 'undefined') {
@@ -52,7 +52,7 @@ var generate_keys = function(message, _index, __count) {
 				item.words = updated_words;
 				dbMarkov.save(item);
 			}
-			console.log('saved item', _index, __count);
+			console.log('saved item', _index);
 		});
 	});
 };
