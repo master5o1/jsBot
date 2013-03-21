@@ -44,7 +44,9 @@ Bot.prototype.addServer = function(server) {
 	var client = new irc.Client(server.url, bot.details.nick, {
 		channels: server.channels,
 		userName: bot.details.nick,
-		realName: bot.details.name
+		realName: bot.details.name,
+		floodProtection: true,
+		floodProtectionDelay: 500
 	});
 	console.log('connecting to:', client.opt.server);
 	client.addListener('registered', function(message){
@@ -71,13 +73,19 @@ Bot.prototype.messageParser = function(client) {
 			isBanned = bot.details.banned.some(function(host){
 				return host == bot.users[from].host;
 			}),
+			channel = to.startsWith('#') ? to : false,
+			isChanOp = false,
 			args = message.split(' '),
 			command = args.shift().substring(bot.details.commandPrefix.length),
 			commands = bot.commands.filter(function(c){
 				return c.command == command;
 			});
+		if (!!channel) isChanOp = /@/.test(client.chans[channel].users[from]);
+		if (isAdmin) isChanOp = isAdmin;
 		if (commands.length == 0) return;
-		if (isBanned || (commands[0].permission == 'admin' && !isAdmin)) {
+		if (isBanned
+		|| (commands[0].permission == 'admin' && !isAdmin)
+		|| (commands[0].permission == 'op' && !isChanOp)) {
 			bot.emit('command_say', client, from, to, fail_response.split(' '));
 			return;
 		}
@@ -106,7 +114,6 @@ Bot.prototype.errorParser = function(client) {
 	var bot = this;
 	return function(message) {
 		bot.emit('error', client, message);
-		console.error("error", client.opt.server, message);
 	};
 };
 

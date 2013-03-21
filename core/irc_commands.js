@@ -17,11 +17,13 @@ Module.prototype.load = function(){
 	
 	self.joinHandler = self.join();
 	self.partHandler = self.part();
+	self.kickHandler = self.kick();
 	
 	self.sayHandler = self.say();
 	
 	self.bot.registerCommand('join', self.joinHandler, 'admin');
 	self.bot.registerCommand('part', self.partHandler, 'admin');
+	self.bot.registerCommand('kick', self.kickHandler, 'op');
 	
 	self.bot.registerCommand('say', self.sayHandler, false);
 	
@@ -32,6 +34,7 @@ Module.prototype.unload = function() {
 	
 	self.bot.deregisterCommand('join', self.joinHandler);
 	self.bot.deregisterCommand('part', self.partHandler);
+	self.bot.deregisterCommand('kick', self.kickHandler);
 	
 	self.bot.deregisterCommand('say', self.sayHandler);
 };
@@ -67,11 +70,25 @@ Module.prototype.part = function(){
 	};
 };
 
+Module.prototype.kick = function(){
+	var self = this;
+	return function(client, from, to, args) {
+		var nick, text = "";
+		if (args.length == 0 || !to.startsWith('#')) {
+			text = self.bot.help("kick", "<nick> [<message>]");
+			self.bot.emit('command_say', client, self.bot.details.nick, to, text.split(' '));
+			return;
+		}
+		nick = args[0];
+		if (args.length > 1) text = args.slice(1).join(' ');
+		client.send('KICK', to, nick, text);
+	};
+};
+
 Module.prototype.say = function(){
 	var self = this;
 	return function(client, from, to, args) {
-		var receiver, message,
-			isAction = false;
+		var receiver, message;
 		message = args.join(' ');
 		if (args.length == 0) {
 			message = self.bot.help("say", "<message>");
@@ -92,18 +109,19 @@ Module.prototype.say = function(){
 			} else {
 				if (args[0] == '/me') {
 					args.shift();
-					isAction = true;
 				}
 			}
 			message = args.join(' ');
 		} else if (args[0] == '/me') {
 			args.shift();
-			isAction = true;
 			message = args.join(' ');
 		}
-		if (isAction) client.action(receiver, message);
-		else client.say(receiver, message);
 		
-		self.bot.emit('said', client, self.bot.details.nick, receiver, message);
+		message.split("\n").forEach(function(text){
+			var isAction = text.startsWith('/me');
+			if (isAction) client.action(receiver, text);
+			else client.say(receiver, text);
+			self.bot.emit('said', client, self.bot.details.nick, receiver, text);
+		});
 	};
 };

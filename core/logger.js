@@ -11,6 +11,7 @@ var Module = module.exports = function Module(bot){
 	self.bot = bot;
 	
 	self.dbLogs = self.bot.dbDatabase.collection('logs');
+	self.dbErrors = self.bot.dbDatabase.collection('errors');
 	
 	self.load();
 	
@@ -24,6 +25,9 @@ Module.prototype.load = function(){
 	self.fileHandler = self.file();
 	self.consoleHandler = self.console();
 	
+	self.errorHandler = self.database(self.dbErrors);
+	self.errorConsoleHandler = self.errorConsole();
+	
 	self.bot.addListener('logger', self.dbHandler);
 	self.bot.addListener('logger', self.fileHandler);
 	self.bot.addListener('logger', self.consoleHandler);
@@ -31,6 +35,9 @@ Module.prototype.load = function(){
 	self.bot.addListener('said', self.dbHandler);
 	self.bot.addListener('said', self.fileHandler);
 	self.bot.addListener('said', self.consoleHandler);
+	
+	self.bot.addListener('error', self.errorHandler);
+	self.bot.addListener('error', self.errorConsoleHandler);
 };
 
 Module.prototype.unload = function() {
@@ -43,19 +50,33 @@ Module.prototype.unload = function() {
 	self.bot.removeListener('said', self.dbHandler);
 	self.bot.removeListener('said', self.fileHandler);
 	self.bot.removeListener('said', self.consoleHandler);
+	
+	self.bot.removeListener('error', self.errorHandler);
+	self.bot.removeListener('error', self.errorConsoleHandler);
 };
 
-Module.prototype.database = function(){
+Module.prototype.database = function(isError){
 	var self = this;
+	isError = isError || false;
 	return function(client, from, to, message) {
+		var item;
 		if (Array.isArray(message)) { message = message.join(' '); }
-		self.dbLogs.insert({
-			date: new Date(),
-			server: client.opt.server,
-			from: from,
-			to: to,
-			message: message
-		});
+		if (!isError) {
+			self.dbLogs.insert({
+				date: new Date(),
+				server: client.opt.server,
+				from: from,
+				to: to,
+				message: message
+			});
+		} else {
+			message = from;
+			self.dbErrors.insert({
+				date: new Date(),
+				server: client.opt.server,
+				message: message
+			});
+		}
 	};
 };
 
@@ -94,5 +115,18 @@ Module.prototype.console = function(){
 		text = util.format("%s [%s] %s <%s>\t%s", time, client.opt.server, to, from, message);
 		
 		console.log(text);
+	};
+};
+
+Module.prototype.errorConsole = function(){
+	var self = this;
+	return function(client, message) {
+		var time, date = new Date();
+		function f(n){ return ((""+n).length == 1 ? "0":"") + n; };
+		
+		time = util.format("%s:%s:%s", f(date.getUTCHours()), f(date.getUTCMinutes()), f(date.getUTCSeconds()));
+		text = util.format("%s [%s]", time, client.opt.server);
+		
+		console.error('ERROR:', text, message);
 	};
 };

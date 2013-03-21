@@ -52,13 +52,21 @@ Module.prototype.help = function(){
 				return command.permission == 'admin';
 			}).map(function(command){
 				return command.command;
-			}).join(' '),
-			common = self.bot.commands.filter(function(command){
-				return command.permission != 'admin';
+			}),
+			op = self.bot.commands.filter(function(command){
+				return command.permission == 'op';
 			}).map(function(command){
 				return command.command;
-			}).join(' ');
-		message = util.format("Available commands: %s\nAdmin only: %s", common, admin);
+			});
+			common = self.bot.commands.filter(function(command){
+				return command.permission != 'admin'
+					&& command.permission != 'op';
+			}).map(function(command){
+				return command.command;
+			});
+		message = "Available Commands: " + common.join(' ');
+		if (op.length > 0) message += "\nOP only: " + op.join(' ');
+		if (admin.length > 0) message += "\nAdmin only: " + admin.join(' ');
 		self.bot.emit('command_say', client, from, to, message.split(' '));
 	};
 };
