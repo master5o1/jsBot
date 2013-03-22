@@ -21,6 +21,7 @@ Module.prototype.load = function(){
 	self.loadModuleHandler = self.loadModule();
 	self.unloadModuleHandler = self.unloadModule();
 	self.listModulesHandler = self.listModules();
+	self.permsHandler = self.setPerms();
 	
 	self.helpHandler = self.help();
 	
@@ -28,6 +29,7 @@ Module.prototype.load = function(){
 	self.bot.registerCommand('load', self.loadModuleHandler, 'admin');
 	self.bot.registerCommand('unload', self.unloadModuleHandler, 'admin');
 	self.bot.registerCommand('lsmod', self.listModulesHandler, 'admin');
+	self.bot.registerCommand('perms', self.permsHandler, 'admin');
 
 	self.bot.registerCommand('help', self.helpHandler, false);
 	
@@ -40,8 +42,50 @@ Module.prototype.unload = function() {
 	self.bot.deregisterCommand('load', self.loadModuleHandler);
 	self.bot.deregisterCommand('unload', self.unloadModuleHandler);
 	self.bot.deregisterCommand('lsmod', self.listModulesHandler);
+	self.bot.deregisterCommand('perms', self.permsHandler);
 	
 	self.bot.deregisterCommand('help', self.helpHandler);
+};
+
+Module.prototype.setPerms = function(){
+	var self = this;
+	function setPerms(client, from, to, permission, nick) {
+		var receiver = to.startsWith('#') ? to : from,
+			text = "",
+			user_host = self.bot.users[nick].host;
+		self.bot.details.admin = self.bot.details.admin.filter(function(host){
+			return host != user_host;
+		});
+		self.bot.details.banned = self.bot.details.banned.filter(function(host){
+			return host != user_host;
+		});
+		if (permission != 'user')
+			self.bot.details[permission == 'ban' ? 'banned' : permission].push(user_host);
+		console.log(self.bot.details);
+		if (permission == 'ban') text = nick + " has been banned.";
+		if (permission == 'user') text = "Permissions reset for " + nick;
+		if (permission == 'admin') text = "Promoted " + nick + " to admin.";
+		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
+	}
+	return function(client, from, to, args) {
+		var message = "",
+			permissions = ['ban', 'admin', 'user'];
+		if (args.length < 2 || permissions.indexOf(args[0]) == -1) {
+			message = self.bot.help("perms", "(ban|user|admin) <nick>");
+			self.bot.emit('command_say', client, from, to, message.split(' '));
+			return;
+		}
+		var permission = args[0],
+			nick = args[1];
+		if (typeof self.bot.users[nick] == 'undefined') {
+			client.whois(nick, function(info){
+				self.bot.users[nick] = info;
+				setPerms(client, from, to, permission, nick);
+			});
+			return;
+		}
+		setPerms(client, from, to, permission, nick);
+	};
 };
 
 Module.prototype.help = function(){
