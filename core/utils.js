@@ -109,7 +109,7 @@ Module.prototype.help = function(){
 				return command.command;
 			});
 		message = "Available Commands: " + common.join(' ');
-		if (op.length > 0) message += "\nOP only: " + op.join(' ');
+		if (op.length > 0) message += "\nOP & Admin: " + op.join(' ');
 		if (admin.length > 0) message += "\nAdmin only: " + admin.join(' ');
 		self.bot.emit('command_say', client, from, to, message.split(' '));
 	};
