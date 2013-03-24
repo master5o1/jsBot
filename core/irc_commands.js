@@ -18,11 +18,13 @@ Module.prototype.load = function(){
 	self.joinHandler = self.join();
 	self.partHandler = self.part();
 	self.kickHandler = self.kick();
+	self.nickHandler = self.nick();
 	
 	self.sayHandler = self.say();
 	
 	self.bot.registerCommand('join', self.joinHandler, 'admin');
 	self.bot.registerCommand('part', self.partHandler, 'admin');
+	self.bot.registerCommand('nick', self.nickHandler, 'admin');
 	self.bot.registerCommand('kick', self.kickHandler, 'op');
 	
 	self.bot.registerCommand('say', self.sayHandler, false);
@@ -34,6 +36,7 @@ Module.prototype.unload = function() {
 	
 	self.bot.deregisterCommand('join', self.joinHandler);
 	self.bot.deregisterCommand('part', self.partHandler);
+	self.bot.deregisterCommand('nick', self.nickHandler);
 	self.bot.deregisterCommand('kick', self.kickHandler);
 	
 	self.bot.deregisterCommand('say', self.sayHandler);
@@ -82,6 +85,22 @@ Module.prototype.kick = function(){
 		nick = args[0];
 		if (args.length > 1) text = args.slice(1).join(' ');
 		client.send('KICK', to, nick, text);
+	};
+};
+
+Module.prototype.nick = function(){
+	var self = this;
+	return function(client, from, to, args) {
+		var nick, text = "";
+		if (args.length == 0 || !to.startsWith('#')) {
+			text = self.bot.help("nick", "<nick>");
+			self.bot.emit('command_say', client, self.bot.details.nick, to, text.split(' '));
+			return;
+		}
+		nick = args[0];
+		self.bot.servers.forEach(function(s){
+			s.server.send('NICK', nick);
+		});
 	};
 };
 
