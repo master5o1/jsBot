@@ -1,8 +1,3 @@
-
-String.prototype.startsWith = function(start) {
-	return this.substring(0, start.length) == start;
-};
-
 var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
@@ -33,7 +28,7 @@ Module.prototype.unload = function() {
 Module.prototype.setProbability = function(){
 	var self = this;
 	return function(client, from, to, args) {
-		var receiver = to.startsWith('#') ? to : from;
+		var receiver = self.bot.startsWith(to, '#') ? to : from;
 		var text = "Random butts probability is set to " + self.probability.toFixed(2) + ".";
 		if (args.length == 0) {
 			text = self.bot.help('butts_prob', "<float>");
@@ -50,7 +45,7 @@ Module.prototype.butt = function(){
 	return function(client, from, to, message) {
 		var receiver, text_array;
 		
-		receiver = to.startsWith('#') ? to : from;
+		receiver = self.bot.startsWith(to, '#') ? to : from;
 		text_array = message.split(' ').map(function(word, index, arr) {
 			if (word.length == 4 && index == Math.round(arr.length * Math.random())) {
 				return 'butt';

@@ -2,10 +2,6 @@ var util = require('util')
 	fs = require('fs'),
 	Mongolian = require('mongolian');
 
-String.prototype.startsWith = function(start) {
-	return this.substring(0, start.length) == start;
-};
-
 var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
@@ -89,7 +85,7 @@ Module.prototype.file = function() {
 		time = util.format("%s:%s:%s", f(date.getUTCHours()), f(date.getUTCMinutes()), f(date.getUTCSeconds()));
 		text = util.format("[%s] <%s>\t%s\r\n", time, from, message);
 
-		sender = to.startsWith('#') ? to : from;
+		sender = self.bot.startsWith(to, '#') ? to : from;
 		sender = (sender == self.bot.details.nick) ? to : sender;
 		
 		file = util.format("%s-%s-%s.txt", date.getUTCFullYear(), f((date.getUTCMonth() + 1) % 12), f(date.getUTCDate()));

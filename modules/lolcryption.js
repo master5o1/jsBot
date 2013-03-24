@@ -32,10 +32,6 @@ String.prototype.delolcrypt = function (cipher) {
     }).join("");
 };
 
-String.prototype.startsWith = function(start) {
-	return this.substring(0, start.length) == start;
-};
-
 var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
@@ -65,7 +61,7 @@ Module.prototype.unload = function() {
 Module.prototype.lolcrypt = function(decrypt){
 	var self = this;
 	return function(client, from, to, args){
-		var text, receiver = to.startsWith('#') ? to : from;
+		var text, receiver = self.bot.startsWith(to, '#') ? to : from;
 		
 		if (args.length == 0) {
 			if (decrypt) {

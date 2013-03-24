@@ -1,7 +1,3 @@
-String.prototype.startsWith = function(start) {
-	return this.substring(0, start.length) == start;
-};
-
 var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
@@ -42,7 +38,7 @@ Module.prototype.bridge = function(){
 	var self = this;
 	return function(client, from, to, message) {
 		var text = "";
-		if (!to.startsWith('#')) return;
+		if (!self.bot.startsWith(to, '#')) return;
 		self.bridges.filter(function(bridge){
 			return bridge.from.server.opt.server == client.opt.server
 					&& bridge.fromChannel.toLowerCase() == to.toLowerCase();
@@ -57,7 +53,7 @@ Module.prototype.bridgeCommand = function(){
 	var self = this;
 	return function(client, from, to, args) {
 		var text = "";
-		if (!to.startsWith('#')) {
+		if (!self.bot.startsWith(to, '#')) {
 			text = "This command must be said from a channel.";
 			self.bot.emit('command_say', client, self.bot.details.nick, from, text.split(' '));
 			return;
@@ -69,7 +65,7 @@ Module.prototype.bridgeCommand = function(){
 		}
 		var serverName = args[0];
 		var channel = args[1];
-		if (!channel.startsWith('#')) {
+		if (!self.bot.startsWith(channel, '#')) {
 			text = self.bot.help('bridge', '<server> <channel>');
 			self.bot.emit('command_say', client, self.bot.details.nick, to, text.split(' '));
 			return;		

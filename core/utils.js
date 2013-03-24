@@ -1,10 +1,6 @@
 var util = require('util'),
 	fs = require('fs');
 
-String.prototype.startsWith = function(start) {
-	return this.substring(0, start.length) == start;
-};
-
 var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
@@ -50,7 +46,7 @@ Module.prototype.unload = function() {
 Module.prototype.setPerms = function(){
 	var self = this;
 	function setPerms(client, from, to, permission, nick) {
-		var receiver = to.startsWith('#') ? to : from,
+		var receiver = self.bot.startsWith(to, '#') ? to : from,
 			text = "",
 			user_host = self.bot.users[nick].host;
 		self.bot.details.admin = self.bot.details.admin.filter(function(host){

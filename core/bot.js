@@ -3,10 +3,6 @@ var EventEmitter = require('events').EventEmitter,
 	fs = require('fs'),
 	Mongolian = require('mongolian');
 
-String.prototype.startsWith = function(start) {
-	return this.substring(0, start.length) == start;
-};
-	
 var Bot = module.exports = function Bot(config){
 	var bot = this;
 	
@@ -73,7 +69,7 @@ Bot.prototype.messageParser = function(client) {
 			isBanned = bot.details.banned.some(function(host){
 				return host == bot.users[from].host;
 			}),
-			channel = to.startsWith('#') ? to : false,
+			channel = bot.startsWith(to, '#') ? to : false,
 			isChanOp = false,
 			args = message.split(' '),
 			command = args.shift().substring(bot.details.commandPrefix.length),
@@ -95,7 +91,7 @@ Bot.prototype.messageParser = function(client) {
 	return function(from, to, message) {
 		var args, command, commands;
 		bot.emit('logger', client, from, to, message);
-		if (!message.startsWith(bot.details.commandPrefix)) {
+		if (!bot.startsWith(message, bot.details.commandPrefix)) {
 			bot.emit('message', client, from, to, message);
 			return;
 		}
@@ -207,4 +203,8 @@ Bot.prototype.help = function(command, help, isFilter) {
 		return command + ' filter: ' + help;
 	else
 		return 'Usage: ' + bot.details.commandPrefix + command + ' ' + help;
+};
+
+Bot.prototype.startsWith = function(str, start) {
+	return str.substring(0, start.length) == start;
 };

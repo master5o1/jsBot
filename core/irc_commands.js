@@ -1,8 +1,3 @@
-
-String.prototype.startsWith = function(start) {
-	return this.substring(0, start.length) == start;
-};
-
 var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
@@ -67,7 +62,7 @@ Module.prototype.part = function(){
 			return;
 		}
 		channel = args[0];
-		if (!channel && to.startsWith('#')) channel = to;
+		if (!channel && self.bot.startsWith(to, '#')) channel = to;
 		client.part(channel);
 		console.log('Parted channel', channel, 'on server', client.opt.server);
 	};
@@ -77,7 +72,7 @@ Module.prototype.kick = function(){
 	var self = this;
 	return function(client, from, to, args) {
 		var nick, text = "";
-		if (args.length == 0 || !to.startsWith('#')) {
+		if (args.length == 0 || !self.bot.startsWith(to, '#')) {
 			text = self.bot.help("kick", "<nick> [<message>]");
 			self.bot.emit('command_say', client, self.bot.details.nick, to, text.split(' '));
 			return;
@@ -92,7 +87,7 @@ Module.prototype.nick = function(){
 	var self = this;
 	return function(client, from, to, args) {
 		var nick, text = "";
-		if (args.length == 0 || !to.startsWith('#')) {
+		if (args.length == 0 || !self.bot.startsWith(to, '#')) {
 			text = self.bot.help("nick", "<nick>");
 			self.bot.emit('command_say', client, self.bot.details.nick, to, text.split(' '));
 			return;
@@ -120,7 +115,7 @@ Module.prototype.say = function(){
 			r = to;
 		}
 		
-		if ((args[0] || '_').startsWith('#')) {
+		if (self.bot.startsWith((args[0] || '_'), '#')) {
 			receiver = args.shift();
 			if (typeof client.chans[receiver] == 'undefined') {
 				args.unshift(receiver);
@@ -137,7 +132,7 @@ Module.prototype.say = function(){
 		}
 		
 		message.split("\n").forEach(function(text){
-			var isAction = text.startsWith('/me');
+			var isAction = self.bot.startsWith(text, '/me');
 			if (isAction) client.action(receiver, text);
 			else client.say(receiver, text);
 			self.bot.emit('said', client, self.bot.details.nick, receiver, text);

@@ -1,9 +1,5 @@
 var Mongolian = require('mongolian');
 
-String.prototype.startsWith = function(start) {
-	return this.substring(0, start.length) == start;
-};
-
 var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
@@ -49,7 +45,7 @@ Module.prototype.builder = function(){
 	return function(client, from, to, args){
 		var reply = '',
 			dict = {},
-			receiver = to.startsWith('#') ? to : from;
+			receiver = self.bot.startsWith(to, '#') ? to : from;
 		// console.log('Building Markov String');
 		
 		if (args.length > 0 && args[0])
@@ -113,7 +109,7 @@ Module.prototype.probable = function(){
 Module.prototype.markovReply = function(){
 	var self = this;
 	return function(client, from, to, message) {
-		if (message.split(' ')[0].startsWith(self.bot.details.nick))
+		if (self.bot.startsWith(message.split(' ')[0], self.bot.details.nick))
 			self.bot.emit('command_markov', client, from, to, [true]);
 	};
 };
@@ -121,7 +117,7 @@ Module.prototype.markovReply = function(){
 Module.prototype.setProbability = function(){
 	var self = this;
 	return function(client, from, to, args) {
-		var receiver = to.startsWith('#') ? to : from;
+		var receiver = self.bot.startsWith(to, '#') ? to : from;
 		var text = "Random markov generation probability is set to " + self.probability.toFixed(2) + ".";
 		if (args.length == 0) {
 			text = self.bot.help('markov_prob', "<float>");
