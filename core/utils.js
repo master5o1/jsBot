@@ -1,200 +1,95 @@
 var util = require('util'),
 	fs = require('fs');
 
-var Module = module.exports = function Module(bot){
+module.exports = function Module(bot){
 	var self = this;
-	self.bot = bot;
-	
-	self.load();
-	
-	console.log('core module utils loaded');
-};
-
-Module.prototype.load = function(){
-	var self = this;
-	
-	self.reloadHandler = self.reload();
-	self.loadModuleHandler = self.loadModule();
-	self.unloadModuleHandler = self.unloadModule();
-	self.listModulesHandler = self.listModules();
-	self.permsHandler = self.setPerms();
-	self.lsPermsHandler = self.lsPerms();
-	
-	self.helpHandler = self.help();
-	
-	self.bot.registerCommand('reload', self.reloadHandler, 'admin');
-	self.bot.registerCommand('load', self.loadModuleHandler, 'admin');
-	self.bot.registerCommand('unload', self.unloadModuleHandler, 'admin');
-	self.bot.registerCommand('lsmod', self.listModulesHandler, 'admin');
-	self.bot.registerCommand('perms', self.permsHandler, 'admin');
-	self.bot.registerCommand('lsperms', self.lsPermsHandler, false);
-
-	self.bot.registerCommand('help', self.helpHandler, false);
-	
-};
-
-Module.prototype.unload = function() {
-	var self = this;
-	
-	self.bot.deregisterCommand('reload', self.reloadHandler);
-	self.bot.deregisterCommand('load', self.loadModuleHandler);
-	self.bot.deregisterCommand('unload', self.unloadModuleHandler);
-	self.bot.deregisterCommand('lsmod', self.listModulesHandler);
-	self.bot.deregisterCommand('perms', self.permsHandler);
-	self.bot.deregisterCommand('lsperms', self.lsPermsHandler);
-	
-	self.bot.deregisterCommand('help', self.helpHandler);
-};
-
-Module.prototype.lsPerms = function(){
-	var self = this;
-	return function setPerms(client, from, to, permission, nick) {
-		var receiver = self.bot.startsWith(to, '#') ? to : from,
-			text = 'Permissions:';
-		if (self.bot.details.admin.length > 0) {
-			text += '\nAdmin: ' + self.bot.details.admin.map(function(user){
-				return user.account + ' (' + user.host + ')';
-			}).join(', ');
-		}
-		if (self.bot.details.banned.length > 0) {
-			text += '\nBanned: ' + self.bot.details.banned.map(function(user){
-				return user.account + ' (' + user.host + ')';
-			}).join(', ');
-		}
-		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
+	var modulePaths = {
+		'./core' : './',
+		'./modules' : '../modules'
 	};
-};
-
-Module.prototype.setPerms = function(){
-	var self = this;
-	function setPerms(client, from, to, permission, nick) {
-		var receiver = self.bot.startsWith(to, '#') ? to : from,
-			text = "",
-			user = { host: self.bot.users[nick].host, account: self.bot.users[nick].account };
-		self.bot.details.admin = self.bot.details.admin.filter(function(user){
-			return !(user.host == self.bot.users[nick].host && user.account == self.bot.users[nick].account);
-		});
-		self.bot.details.banned = self.bot.details.banned.filter(function(user){
-			return !(user.host == self.bot.users[nick].host && user.account == self.bot.users[nick].account);
-		});
-		if (permission != 'user')
-			self.bot.details[permission == 'ban' ? 'banned' : permission].push(user);
-		console.log(self.bot.details);
-		if (permission == 'ban') text = nick + " has been banned.";
-		if (permission == 'user') text = "Permissions reset for " + nick;
-		if (permission == 'admin') text = "Promoted " + nick + " to admin.";
-		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
-	}
-	return function(client, from, to, args) {
+	
+	var lspermsCommand = function(client, from, to, args) {
+		var receiver = bot.startsWith(to, '#') ? to : from,
+			text = 'Permissions:';
+		if (bot.details.admin.length > 0) {
+			text += '\nAdmin: ' + bot.details.admin.map(function(user){
+				return user.account + ' (' + user.host + ')';
+			}).join(', ');
+		}
+		if (bot.details.banned.length > 0) {
+			text += '\nBanned: ' + bot.details.banned.map(function(user){
+				return user.account + ' (' + user.host + ')';
+			}).join(', ');
+		}
+		bot.say(client, receiver, text);
+	};
+	
+	var permsCommand = function(client, from, to, args) {
+		function setPerms(client, from, to, permission, nick) {
+			var receiver = bot.startsWith(to, '#') ? to : from,
+				text = "",
+				user = { host: bot.users[nick].host, account: bot.users[nick].account };
+			bot.details.admin = bot.details.admin.filter(function(user){
+				return !(user.host == bot.users[nick].host && user.account == bot.users[nick].account);
+			});
+			bot.details.banned = bot.details.banned.filter(function(user){
+				return !(user.host == bot.users[nick].host && user.account == bot.users[nick].account);
+			});
+			if (permission != 'user')
+				bot.details[permission == 'ban' ? 'banned' : permission].push(user);
+			if (permission == 'ban') text = nick + " has been banned.";
+			if (permission == 'user') text = "Permissions reset for " + nick;
+			if (permission == 'admin') text = "Promoted " + nick + " to admin.";
+			bot.say(client, receiver, text);
+		}
 		var message = "",
 			permissions = ['ban', 'admin', 'user'];
 		if (args.length < 2 || permissions.indexOf(args[0]) == -1) {
-			message = self.bot.help("perms", "(ban|user|admin) <nick>");
-			self.bot.emit('command_say', client, from, to, message.split(' '));
+			message = bot.help("perms", "(ban|user|admin) <nick>");
+			bot.say(client, receiver, message);
 			return;
 		}
 		var permission = args[0],
 			nick = args[1];
-		if (typeof self.bot.users[nick] == 'undefined') {
+		if (typeof bot.users[nick] == 'undefined') {
 			client.whois(nick, function(info){
-				self.bot.users[nick] = info;
+				bot.users[nick] = info;
 				setPerms(client, from, to, permission, nick);
 			});
 			return;
 		}
 		setPerms(client, from, to, permission, nick);
 	};
-};
-
-Module.prototype.help = function(){
-	var self = this;
-	return function(client, from, to, args) {
-		var message,
-			admin = self.bot.commands.filter(function(command){
+	
+	var helpCommand = function(client, from, to, args) {
+		var receiver = bot.startsWith(to, '#') ? to : from,
+			admin = bot.commands.filter(function(command){
 				return command.permission == 'admin';
 			}).map(function(command){
 				return command.command;
 			}),
-			op = self.bot.commands.filter(function(command){
+			op = bot.commands.filter(function(command){
 				return command.permission == 'op';
 			}).map(function(command){
 				return command.command;
 			});
-			common = self.bot.commands.filter(function(command){
+			common = bot.commands.filter(function(command){
 				return command.permission != 'admin'
 					&& command.permission != 'op';
 			}).map(function(command){
 				return command.command;
-			});
-		message = "Available Commands: " + common.join(' ');
+			}),
+			message = "Available Commands: " + common.join(' ');
 		if (op.length > 0) message += "\nOP & Admin: " + op.join(' ');
 		if (admin.length > 0) message += "\nAdmin only: " + admin.join(' ');
-		self.bot.emit('command_say', client, from, to, message.split(' '));
+		bot.say(client, receiver, message);
 	};
-};
-
-Module.prototype.reload = function(){
-	var self = this;
-	return function(client, from, to, args) {
-		var bot = self.bot,
-			module, message,
-			reply = from;
-		module = bot.modules.filter(function(mod){
-			if (args.length == 0) { return false; }
-			return mod.name == args[0];
-		});
-		
-		if (args.length == 0) {
-			message = bot.help('reload', '<module>');
-		} else if (module.length == 0) {
-			message = "no module found named: " + args[0];
-		} else {
-			module = module[0];
-			bot.unloadModule(module.name);
-			bot.loadModule(module.path, module.file);
-			message = "reloaded: " + module.name;
-		}
-		self.bot.emit('command_say', client, from, to, message.split(' '));
-	};
-};
-
-Module.prototype.unloadModule = function(){
-	var self = this;
-	return function(client, from, to, args) {
-		var bot = self.bot,
-			module, message,
-			reply = from;
-		module = bot.modules.filter(function(mod){
-			if (args.length == 0) { return false; }
-			return mod.name == args[0];
-		});
-		
-		if (args.length == 0) {
-			message = bot.help('reload', '<module>');
-		} else if (module.length == 0) {
-			message = "no module found named: " + args[0];
-		} else {
-			module = module[0];
-			bot.unloadModule(module.name);
-			message = "unloaded: " + module.name;
-		}
-		self.bot.emit('command_say', client, from, to, message.split(' '));
-	};
-};
-
-Module.prototype.loadModule = function(){
-	var self = this,
-		module_paths = {
-			'./core' : './',
-			'./modules' : '../modules'
-		};
-	return function(client, from, to, args) {
-		var bot = self.bot,
+	
+	var loadModuleCommand = function(client, from, to, args) {
+		var receiver = bot.startsWith(to, '#') ? to : from,
 			module,
-			keys = Object.keys(module_paths),
-			found = false,
+			keys = Object.keys(modulePaths),
 			message = "",
-			reply = from;
 		module = bot.modules.filter(function(mod){
 			if (args.length == 0) { return false; }
 			return mod.name == args[0];
@@ -216,10 +111,9 @@ Module.prototype.loadModule = function(){
 						return file == (args[0] + '.js');
 					});
 					filtered_files.forEach(function(file, fIndex) {
-						console.log(file, args[0]);
-						bot.loadModule(module_paths[path], file, fIndex);
+						bot.loadModule(modulePaths[path], file, fIndex);
 						message = "loaded: " + args[0];
-						self.bot.emit('command_say', client, from, to, message.split(' '));
+						bot.say(client, receiver, message);
 						message = "";
 					}, bot);
 					if (filtered_files.length == 0 && index == keys.length - 1) {
@@ -229,22 +123,55 @@ Module.prototype.loadModule = function(){
 			});
 		}
 		if (message.length > 0)
-			self.bot.emit('command_say', client, from, to, message.split(' '));
+			bot.say(client, receiver, message);
 	};
-};
-
-Module.prototype.listModules = function(){
-	var self = this,
-		module_paths = {
-			'./core' : './',
-			'./modules' : '../modules'
-		};
-	return function(client, from, to, args) {
-		var bot = self.bot,
-			keys = Object.keys(module_paths),
+	
+	var unloadModuleCommand = function(client, from, to, args) {
+		var receiver = bot.startsWith(to, '#') ? to : from,
+			message,
+			module = bot.modules.filter(function(mod){
+				if (args.length == 0) { return false; }
+				return mod.name == args[0];
+			});
+		
+		if (args.length == 0) {
+			message = bot.help('reload', '<module>');
+		} else if (module.length == 0) {
+			message = "no module found named: " + args[0];
+		} else {
+			module = module[0];
+			bot.unloadModule(module.name);
+			message = "unloaded: " + module.name;
+		}
+		bot.say(client, receiver, message);
+	};
+	
+	var reloadModuleCommand = function(client, from, to, args) {
+		var receiver = bot.startsWith(to, '#') ? to : from,
+			message,
+			module = bot.modules.filter(function(mod){
+				if (args.length == 0) { return false; }
+				return mod.name == args[0];
+			});
+		
+		if (args.length == 0) {
+			message = bot.help('reload', '<module>');
+		} else if (module.length == 0) {
+			message = "no module found named: " + args[0];
+		} else {
+			module = module[0];
+			bot.unloadModule(module.name);
+			bot.loadModule(module.path, module.file);
+			message = "reloaded: " + module.name;
+		}
+		bot.say(client, receiver, message);
+	};
+	
+	var lsmodCommand = function(client, from, to, args) {
+		var receiver = bot.startsWith(to, '#') ? to : from,
+			keys = Object.keys(modulePaths),
 			count = 0,
 			message = "",
-			reply = from,
 			modules = [],
 			path = "";
 		
@@ -262,7 +189,7 @@ Module.prototype.listModules = function(){
 						file_count++; 
 						if (file == 'bot.js') { continue; }
 						var isCore = path == './core' ? true : false;
-						var isLoaded = self.bot.modules.some(function(mod){ return (mod.name + '.js') == file });
+						var isLoaded = bot.modules.some(function(mod){ return (mod.name + '.js') == file });
 						modules.push({ name: file.replace('.js', ''), core: isCore, loaded: isLoaded });
 						if (count == keys.length - 1 && index == files.length - 1) {
 							message = "Modules:\n";
@@ -280,7 +207,7 @@ Module.prototype.listModules = function(){
 									.replace(",", mod.loaded && mod.core ? ', ' : '')
 									.replace('()', '');
 							}).join ("\n");
-							self.bot.emit('command_say', client, from, to, message.split(' '));
+							bot.say(client, receiver, message);
 							message = "";
 						}
 					}
@@ -289,6 +216,35 @@ Module.prototype.listModules = function(){
 			})(path));
 		}
 		if (message.length > 0)
-			self.bot.emit('command_say', client, from, to, message.split(' '));
+			bot.say(client, receiver, message);
 	};
+	
+	this.load = function(){
+		bot.registerCommand('lsperms', lspermsCommand, false);
+		bot.registerCommand('perms', permsCommand, 'admin');
+		
+		bot.registerCommand('help', helpCommand, false);
+		
+		bot.registerCommand('load', loadModuleCommand, 'admin');
+		bot.registerCommand('unload', unloadModuleCommand, 'admin');
+		bot.registerCommand('reload', reloadModuleCommand, 'admin');
+		bot.registerCommand('lsmod', lsmodCommand, 'admin');
+		
+		console.log('core module utils loaded');
+	};
+
+	this.unload = function() {
+		bot.deregisterCommand('lsperms', lspermsCommand);
+		bot.deregisterCommand('perms', permsCommand);
+		bot.deregisterCommand('help', helpCommand);
+		
+		bot.deregisterCommand('load', loadModuleCommand);
+		bot.deregisterCommand('unload', unloadModuleCommand);
+		bot.deregisterCommand('reload', reloadModuleCommand);
+		bot.deregisterCommand('lsmod', lsmodCommand);
+		
+		console.log('core module utils unloaded');
+	};
+	
+	this.load();
 };

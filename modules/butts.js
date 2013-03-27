@@ -2,10 +2,6 @@ module.exports = function Module(bot){
 	var self = this;
 	var probability = 0.01;
 	
-	var say = function(client, to, message) {
-		bot.emit('command_say', client, bot.details.nick, to, message.split(' '));
-	};
-	
 	var setProbability = function(client, from, to, args) {
 		var receiver = bot.startsWith(to, '#') ? to : from;
 		var text = "Random butts probability is set to " + probability.toFixed(2) + ".";
@@ -15,7 +11,7 @@ module.exports = function Module(bot){
 			probability = parseFloat(args[0]);
 			text = "Random butts generation probability is set to " + probability.toFixed(2) + ".";
 		}
-		say(client, receiver, text);
+		bot.say(client, receiver, text);
 	};
 	
 	var buttHandler = function(client, from, to, message) {
@@ -36,7 +32,7 @@ module.exports = function Module(bot){
 		if (text == message) { return; }
 		
 		if (Math.random() < probability)
-			say(client, receiver, text);
+			bot.say(client, receiver, text);
 	};
 	
 	

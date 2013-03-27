@@ -209,3 +209,7 @@ Bot.prototype.help = function(command, help, isFilter) {
 Bot.prototype.startsWith = function(str, start) {
 	return str.substring(0, start.length) == start;
 };
+
+Bot.prototype.say = function(client, to, message) {
+	this.emit('command_say', client, this.details.nick, to, message.split(' '));
+};
