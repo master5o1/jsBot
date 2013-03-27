@@ -1,67 +1,56 @@
-var Module = module.exports = function Module(bot){
+module.exports = function Module(bot){
 	var self = this;
-	self.bot = bot;
+	var probability = 0.01;
 	
-	self.probability = 0.01;
+	var say = function(client, to, message) {
+		bot.emit('command_say', client, bot.details.nick, to, message.split(' '));
+	};
 	
-	self.load();
-	
-	console.log('module butts loaded');
-};
-
-Module.prototype.load = function(){
-	var self = this;
-	
-	self.buttHandler = self.butt();
-	self.setProbabilityHandler = self.setProbability();
-	
-	self.bot.registerCommand('butts_prob', self.setProbabilityHandler);
-	self.bot.addListener('message', self.buttHandler);
-};
-
-Module.prototype.unload = function() {
-	var self = this;
-	self.bot.deregisterCommand('butts_prob', self.setProbabilityHandler);
-	self.bot.removeListener('message', self.buttHandler);
-};
-
-Module.prototype.setProbability = function(){
-	var self = this;
-	return function(client, from, to, args) {
-		var receiver = self.bot.startsWith(to, '#') ? to : from;
-		var text = "Random butts probability is set to " + self.probability.toFixed(2) + ".";
+	var setProbability = function(client, from, to, args) {
+		var receiver = bot.startsWith(to, '#') ? to : from;
+		var text = "Random butts probability is set to " + probability.toFixed(2) + ".";
 		if (args.length == 0) {
-			text = self.bot.help('butts_prob', "<float>");
+			text = bot.help('butts_prob', "<float>");
 		} else if (/number/i.test(typeof parseFloat(args[0])) && ! /nan/i.test(parseFloat(args[0]).toString())) {
-			self.probability = parseFloat(args[0]);
-			text = "Random butts generation probability is set to " + self.probability.toFixed(2) + ".";
+			probability = parseFloat(args[0]);
+			text = "Random butts generation probability is set to " + probability.toFixed(2) + ".";
 		}
-		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
+		say(client, receiver, text);
 	};
-};
+	
+	var buttHandler = function(client, from, to, message) {
+		var receiver = bot.startsWith(to, '#') ? to : from,
+			text = message.split(' ').map(function(word, index, arr) {
+				if (word.length == 4 && index == Math.round(arr.length * Math.random())) {
+					return 'butt';
+				}
+				if (word.length == 5 && word.substring(4) == 's') {
+					return 'butts';
+				}
+				if (word.length > 4 && index == Math.round(arr.length * Math.random())) {
+					return 'poop';
+				}
+				return word;
+			}).join(' ');
+		
+		if (text == message) { return; }
+		
+		if (Math.random() < probability)
+			say(client, receiver, text);
+	};
+	
+	
+	this.load = function(){		
+		bot.registerCommand('butts_prob', setProbability);
+		bot.addListener('message', buttHandler);
+		console.log('module butts loaded');
+	};
 
-Module.prototype.butt = function(){
-	var self = this;
-	return function(client, from, to, message) {
-		var receiver, text_array;
-		
-		receiver = self.bot.startsWith(to, '#') ? to : from;
-		text_array = message.split(' ').map(function(word, index, arr) {
-			if (word.length == 4 && index == Math.round(arr.length * Math.random())) {
-				return 'butt';
-			}
-			if (word.length == 5 && word.substring(4) == 's') {
-				return 'butts';
-			}
-			if (word.length > 4 && index == Math.round(arr.length * Math.random())) {
-				return 'poop';
-			}
-			return word;
-		});
-		
-		if (text_array.join(' ') == message) { return; }
-		
-		if (Math.random() < self.probability)
-			self.bot.emit('command_say', client, self.bot.details.nick, receiver, text_array);
+	this.unload = function() {
+		bot.deregisterCommand('butts_prob', setProbability);
+		bot.removeListener('message', buttHandler);
+		console.log('module butts unloaded');
 	};
+
+	this.load();
 };
