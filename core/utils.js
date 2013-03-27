@@ -18,6 +18,7 @@ Module.prototype.load = function(){
 	self.unloadModuleHandler = self.unloadModule();
 	self.listModulesHandler = self.listModules();
 	self.permsHandler = self.setPerms();
+	self.lsPermsHandler = self.lsPerms();
 	
 	self.helpHandler = self.help();
 	
@@ -26,6 +27,7 @@ Module.prototype.load = function(){
 	self.bot.registerCommand('unload', self.unloadModuleHandler, 'admin');
 	self.bot.registerCommand('lsmod', self.listModulesHandler, 'admin');
 	self.bot.registerCommand('perms', self.permsHandler, 'admin');
+	self.bot.registerCommand('lsperms', self.lsPermsHandler, false);
 
 	self.bot.registerCommand('help', self.helpHandler, false);
 	
@@ -39,8 +41,28 @@ Module.prototype.unload = function() {
 	self.bot.deregisterCommand('unload', self.unloadModuleHandler);
 	self.bot.deregisterCommand('lsmod', self.listModulesHandler);
 	self.bot.deregisterCommand('perms', self.permsHandler);
+	self.bot.deregisterCommand('lsperms', self.lsPermsHandler);
 	
 	self.bot.deregisterCommand('help', self.helpHandler);
+};
+
+Module.prototype.lsPerms = function(){
+	var self = this;
+	return function setPerms(client, from, to, permission, nick) {
+		var receiver = self.bot.startsWith(to, '#') ? to : from,
+			text = 'Permissions:';
+		if (self.bot.details.admin.length > 0) {
+			text += '\nAdmin: ' + self.bot.details.admin.map(function(user){
+				return user.account + ' (' + user.host + ')';
+			}).join(', ');
+		}
+		if (self.bot.details.banned.length > 0) {
+			text += '\nBanned: ' + self.bot.details.banned.map(function(user){
+				return user.account + ' (' + user.host + ')';
+			}).join(', ');
+		}
+		self.bot.emit('command_say', client, self.bot.details.nick, receiver, text.split(' '));
+	};
 };
 
 Module.prototype.setPerms = function(){
@@ -48,15 +70,15 @@ Module.prototype.setPerms = function(){
 	function setPerms(client, from, to, permission, nick) {
 		var receiver = self.bot.startsWith(to, '#') ? to : from,
 			text = "",
-			user_host = self.bot.users[nick].host;
-		self.bot.details.admin = self.bot.details.admin.filter(function(host){
-			return host != user_host;
+			user = { host: self.bot.users[nick].host, account: self.bot.users[nick].account };
+		self.bot.details.admin = self.bot.details.admin.filter(function(user){
+			return !(user.host == self.bot.users[nick].host && user.account == self.bot.users[nick].account);
 		});
-		self.bot.details.banned = self.bot.details.banned.filter(function(host){
-			return host != user_host;
+		self.bot.details.banned = self.bot.details.banned.filter(function(user){
+			return !(user.host == self.bot.users[nick].host && user.account == self.bot.users[nick].account);
 		});
 		if (permission != 'user')
-			self.bot.details[permission == 'ban' ? 'banned' : permission].push(user_host);
+			self.bot.details[permission == 'ban' ? 'banned' : permission].push(user);
 		console.log(self.bot.details);
 		if (permission == 'ban') text = nick + " has been banned.";
 		if (permission == 'user') text = "Permissions reset for " + nick;

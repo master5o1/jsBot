@@ -61,13 +61,14 @@ Bot.prototype.messageParser = function(client) {
 		"Computer says no.",
 	];
 	var parseCommand = function(from, to, message){
+		console.log(bot.users[from]);
 		var response = Math.round(Math.random() * (failure_responses.length + 1)) % failure_responses.length,
 			fail_response = failure_responses[response],
-			isAdmin = bot.details.admin.some(function(host){
-				return host == bot.users[from].host;
+			isAdmin = bot.details.admin.some(function(user){
+				return user.host == bot.users[from].host && user.account == bot.users[from].account;
 			}),
-			isBanned = bot.details.banned.some(function(host){
-				return host == bot.users[from].host;
+			isBanned = bot.details.banned.some(function(user){
+				return user.host == bot.users[from].host && user.account == bot.users[from].account;
 			}),
 			channel = bot.startsWith(to, '#') ? to : false,
 			isChanOp = false,

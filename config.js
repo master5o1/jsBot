@@ -10,7 +10,8 @@ config.bot = {
 // considered as admin or banned.
 config.users = {
 	admin: [
-		"unaffiliated/master5o1"
+		{ host: "unaffiliated/master5o1", account: "master5o1" },
+		{ host: "PirateParty/NZ/Member", account: "master5o1" }
 	],
 	banned: []
 };
