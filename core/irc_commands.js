@@ -2,7 +2,7 @@ var Module = module.exports = function Module(bot){
 	var self = this;
 	self.bot = bot;
 	
-	self.mute = {};
+	self.muted_channels = {};
 	
 	self.load();
 	
@@ -16,17 +16,15 @@ Module.prototype.load = function(){
 	self.partHandler = self.part();
 	self.kickHandler = self.kick();
 	self.nickHandler = self.nick();
-	self.partOpHandler = self.opPart();
-	self.opMuteHandler = self.opMute();
+	self.muteHandler = self.mute();
 	
 	self.sayHandler = self.say();
 	
 	self.bot.registerCommand('join', self.joinHandler, 'admin');
-	self.bot.registerCommand('part', self.partHandler, 'admin');
+	self.bot.registerCommand('part', self.partHandler, 'op');
 	self.bot.registerCommand('nick', self.nickHandler, 'admin');
 	self.bot.registerCommand('kick', self.kickHandler, 'op');
-	self.bot.registerCommand('part_op', self.partOpHandler, 'op');
-	self.bot.registerCommand('mute', self.opMuteHandler, 'op');
+	self.bot.registerCommand('mute', self.muteHandler, 'op');
 	
 	self.bot.registerCommand('say', self.sayHandler, false);
 	
@@ -39,8 +37,7 @@ Module.prototype.unload = function() {
 	self.bot.deregisterCommand('part', self.partHandler);
 	self.bot.deregisterCommand('nick', self.nickHandler);
 	self.bot.deregisterCommand('kick', self.kickHandler);
-	self.bot.deregisterCommand('part_op', self.partOpHandler);
-	self.bot.deregisterCommand('mute', self.opMuteHandler);
+	self.bot.deregisterCommand('mute', self.muteHandler);
 	
 	self.bot.deregisterCommand('say', self.sayHandler);
 };
@@ -63,23 +60,28 @@ Module.prototype.join = function(){
 Module.prototype.part = function(){
 	var self = this;
 	return function(client, from, to, args) {
-		var channel;
-		if ((args.length == 0 && !self.bot.startsWith(to, '#')) || (args.length > 0 && !self.bot.startsWith(args[0], '#'))) {
+		var channel,
+			receiver = self.bot.startsWith(to, '#') ? to : from,
+			isAdmin = self.bot.details.admin.some(function(user){
+				return user.host == self.bot.users[from].host && user.account == self.bot.users[from].account;
+			});
+		if ((args.length == 0 && !self.bot.startsWith(to, '#'))
+			|| (args.length > 0 && (!isAdmin || !self.bot.startsWith(args[0], '#')))) {
 			message = self.bot.help("part", "[#channel]");
-			self.say(client, from, to, message.split(' '));
+			self.bot.say(client, receiver, message);
 			return;
 		}
-		if (args.length == 0) {
-			channel = to;
-		} else {
+		if (args.length > 0 && isAdmin) {
 			channel = args[0];
+		} else {
+			channel = to;
 		}
 		client.part(channel);
 		console.log('Parted channel', channel, 'on server', client.opt.server);
 	};
 };
 
-Module.prototype.opMute = function(){
+Module.prototype.mute = function(){
 	var self = this;
 	return function(client, from, to, args) {
 		if (!self.bot.startsWith(to, '#')) {
@@ -87,25 +89,10 @@ Module.prototype.opMute = function(){
 			return;
 		}
 		var mute_key = client.opt.server + '/' + to;
-		self.mute[mute_key] = true;
+		self.muted_channels[mute_key] = true;
 		if (args.length > 0 && args[0] == 'reset') {
-			self.mute[mute_key] = false;
+			self.muted_channels[mute_key] = false;
 		}
-	};
-};
-
-Module.prototype.opPart = function(){
-	var self = this;
-	return function(client, from, to, args) {
-		var channel;
-		if (args.length == 0 && !self.bot.startsWith(to, '#')) {
-			message = self.bot.help("part", "[#channel]");
-			self.say(client, from, to, message.split(' '));
-			return;
-		}
-		channel = to;
-		client.part(channel);
-		console.log('Parted channel', channel, 'on server', client.opt.server);
 	};
 };
 
@@ -127,15 +114,15 @@ Module.prototype.kick = function(){
 Module.prototype.nick = function(){
 	var self = this;
 	return function(client, from, to, args) {
-		var nick, text = "";
+		var text = "";
 		if (args.length == 0 || !self.bot.startsWith(to, '#')) {
 			text = self.bot.help("nick", "<nick>");
 			self.bot.emit('command_say', client, self.bot.details.nick, to, text.split(' '));
 			return;
 		}
-		nick = args[0];
+		self.bot.details.nick = args[0];
 		self.bot.servers.forEach(function(s){
-			s.server.send('NICK', nick);
+			s.server.send('NICK', self.bot.details.nick);
 		});
 	};
 };
@@ -146,7 +133,7 @@ Module.prototype.say = function(){
 		var receiver, message;
 		message = args.join(' ');
 		var mute_key = client.opt.server + '/' + to;
-		if (typeof self.mute[mute_key] != 'undefined' && self.mute[mute_key] === true) {
+		if (typeof self.muted_channels[mute_key] != 'undefined' && self.muted_channels[mute_key] === true) {
 			return;
 		}
 		if (args.length == 0) {

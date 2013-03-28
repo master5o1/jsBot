@@ -22,7 +22,7 @@ config.servers = [
 		url: "irc.freenode.net",
 		channels: [
 			"##jsbot",
-			// "#ualug",
+			"#ualug",
 		]
 	},
 	{
@@ -37,4 +37,5 @@ config.modules = [
 	"bridge.js",
 	"markov.js",
 	"lolcryption.js",
+	"fun.js"
 ];
