@@ -1,6 +1,6 @@
 {
   "name": "jsBot",
-  "version": "0.1.20",
+  "version": "0.1.25",
   "description": "A delicious multi-server IRC bot.",
   "main": "run.js",
   "dependencies": {
