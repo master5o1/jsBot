@@ -19,14 +19,12 @@ Module.prototype.load = function(){
 	
 	self.builderHandler = self.builder();
 	self.probabilityHandler = self.probable();
-	self.markovReplyHandler = self.markovReply();
 	self.setProbHandler = self.setProbability();
 	self.gatherHandler = self.gather();
 	
 	self.bot.registerCommand('markov', self.builderHandler);
 	self.bot.registerCommand('markov_prob', self.setProbHandler);
 	self.bot.addListener('message', self.probabilityHandler);
-	self.bot.addListener('message', self.markovReplyHandler);
 	self.bot.addListener('message', self.gatherHandler);
 };
 
@@ -36,7 +34,6 @@ Module.prototype.unload = function() {
 	self.bot.deregisterCommand('markov', self.builderHandler);
 	self.bot.deregisterCommand('markov_prob', self.setProbHandler);
 	self.bot.removeListener('message', self.probabilityHandler);
-	self.bot.removeListener('message', self.markovReplyHandler);
 	self.bot.removeListener('message', self.gatherHandler);
 };
 
@@ -103,14 +100,6 @@ Module.prototype.probable = function(){
 	return function(client, from, to, message) {
 		if (Math.random() < self.probability)
 			self.bot.emit('command_markov', client, from, to, []);
-	};
-};
-
-Module.prototype.markovReply = function(){
-	var self = this;
-	return function(client, from, to, message) {
-		if (self.bot.startsWith(message.split(' ')[0], self.bot.details.nick))
-			self.bot.emit('command_markov', client, from, to, [true]);
 	};
 };
 
