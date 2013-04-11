@@ -125,7 +125,12 @@ var Module = module.exports = function Module(bot){
 	};
 	
 	var markovCommand = function(client, from, to, args){
-		var receiver = bot.startsWith(to, '#') ? to : from;
+		var channel = bot.startsWith(to, '#') ? to : null,
+			isChanOp = false;
+			receiver = bot.startsWith(to, '#') ? to : from,
+			isAdmin = bot.details.admin.some(function(user){
+				return user.host == bot.users[from].host && user.account == bot.users[from].account;
+			});
 		if (args.length == 0) {
 			bot.say(client, receiver, bot.help('markov', '(list|say <words>|probability <float>)'));
 			return
@@ -135,21 +140,13 @@ var Module = module.exports = function Module(bot){
 		} else if (args[0] == 'say') {
 			builder(client, from, to, args.slice(1));
 		} else if (args[0] == 'probability' && args.length > 1) {
-			setProbability(client, from, from, args.slice(1)); // users can only set their own one.
+			if (!!channel) isChanOp = /@/.test(client.chans[channel].users[from]);
+			receiver = from;
+			if (bot.startsWith(to, '#') && (isChanOp || isAdmin)) {
+				receiver = to
+			}
+			setProbability(client, receiver, receiver, args.slice(1)); // users can only set their own one.
 		}
-	};
-	
-	var markovOpCommand = function(client, from, to, args){
-		var receiver = bot.startsWith(to, '#') ? to : from;
-		if (!bot.startsWith(to, '#')) {
-			bot.say(client, receiver, 'Say this command from a channel that you are op in');
-			return
-		}
-		if (args.length == 0) {
-			bot.say(client, receiver, bot.help('markov_op', '<float>'));
-			return;
-		}
-		setProbability(client, from, to, args);
 	};
 	
 	var onProbability = function(client, from, to, message) {
@@ -164,7 +161,6 @@ var Module = module.exports = function Module(bot){
 		bot.addListener('message', onProbability);
 		bot.addListener('message', gather);
 		
-		bot.registerCommand('markov_op', markovOpCommand, 'op');
 		bot.registerCommand('markov', markovCommand);
 		
 		console.log('module markov loaded');
@@ -174,7 +170,6 @@ var Module = module.exports = function Module(bot){
 		bot.removeListener('message', onProbability);
 		bot.removeListener('message', gather);
 		
-		bot.deregisterCommand('markov_op', markovOpCommand);
 		bot.deregisterCommand('markov', markovCommand);
 		
 		console.log('module markov unloaded');
