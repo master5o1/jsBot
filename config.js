@@ -22,7 +22,7 @@ config.servers = [
 		url: "irc.freenode.net",
 		channels: [
 			"##jsbot",
-			"#ualug",
+			// "#ualug",
 		]
 	},
 	{

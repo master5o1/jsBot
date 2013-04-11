@@ -4,8 +4,8 @@ var Module = module.exports = function Module(bot){
 	var self = this;
 	var dbMarkov = bot.dbDatabase.collection('markov');
 	var default_probability = 0.02;
+	var custom_probabilities = {};
 	var max_words = 25;
-	var custom_probabilities = {}; // { 'irc.freenode.net/#ualug': 0.00 }
 	
 	var gather = function(client, from, to, message) {
 		var dict, i, words, first, second, third, key;
@@ -139,7 +139,8 @@ var Module = module.exports = function Module(bot){
 			listProbability(client, from, to, args);
 		} else if (args[0] == 'say') {
 			builder(client, from, to, args.slice(1));
-		} else if (args[0] == 'probability' && args.length > 1) {
+		} else if (args[0] == 'probability') {
+			if (args.length == 1) args.push('what');
 			if (!!channel) isChanOp = /@/.test(client.chans[channel].users[from]);
 			receiver = from;
 			if (bot.startsWith(to, '#') && (isChanOp || isAdmin)) {
