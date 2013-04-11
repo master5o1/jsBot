@@ -71,7 +71,7 @@ Module.prototype.part = function(){
 			self.bot.say(client, receiver, message);
 			return;
 		}
-		if (args.length > 0 && isAdmin) {
+		if (isAdmin && args.length > 0) {
 			channel = args[0];
 		} else {
 			channel = to;
