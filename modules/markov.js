@@ -140,6 +140,7 @@ var Module = module.exports = function Module(bot){
 	};
 	
 	var markovOpCommand = function(client, from, to, args){
+		var receiver = bot.startsWith(to, '#') ? to : from;
 		if (!bot.startsWith(to, '#')) {
 			bot.say(client, receiver, 'Say this command from a channel that you are op in');
 			return
@@ -148,7 +149,7 @@ var Module = module.exports = function Module(bot){
 			bot.say(client, receiver, bot.help('markov_op', '<float>'));
 			return;
 		}
-		setProbability(client, from, to, args); // users can only set their own one.
+		setProbability(client, from, to, args);
 	};
 	
 	var onProbability = function(client, from, to, message) {
