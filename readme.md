@@ -5,12 +5,19 @@ A delicious multi-server IRC robot.
 
 Requirements
 ------------
-* Node.js (0.10.0)
-* Node-IRC (~0.3.6)
-* Mongolian (~0.1.18)
+* [Node.js](http://nodejs.org/) (0.10.0)
+* [Node-IRC](https://github.com/martynsmith/node-irc) (~0.3.6)
+* [Mongolian](https://github.com/marcello3d/node-mongolian) (~0.1.18)
 
 Doc
 ---
+
+**To run**
+* Setup details in the config.js file.
+* Make sure MongoDB is installed and running.
+* Pray to Glob that this will work.
+* Start the bot using `node run.js`
+
 
 Not bothered to write this yet.
 
