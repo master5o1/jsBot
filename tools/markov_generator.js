@@ -11,17 +11,51 @@ var filename = process.argv[2];
 var dbServer = new Mongolian();
 var dbDatabase = dbServer.db('jsBot');
 var dbMarkov = dbDatabase.collection('markov');
+var dbLogs = dbDatabase.collection('logs');
 
-fs.readFile(filename, function(err, data) {
-	var lines = data.toString().split(/\r?\n/);
-	lines.forEach(function(line, index){
-		generate_keys(line, index, lines.length);
+if (filename != '--database') {
+	fs.readFile(filename, function(err, data) {
+		var lines = data.toString().split(/\r?\n/);
+		lines.forEach(function(line, index){
+			generate_keys(line, index, lines.length);
+		});
 	});
-});
-
-var generate_keys = function(message, _index, __count) {
+} else {
+	var cursor = dbLogs.find({ from: /[^(jsbot)|(bunge)]/i });
+	cursor.count(function(err, count){
+		var i = 0;
+		console.log(count);
+		cursor.forEach(function(log){
+			generate_keys(log.message, ++i, count);
+		});
+	});
+}
+var generate_keys = function(message, __index, __count) {
 	var dict, i, words, first, second, third, key;
-	if (message.length < 3) return;
+	function saveMarkov() {
+		Object.keys(dict).forEach(function(key, _index, arr){
+			dbMarkov.findOne({ key: key }, function(err, item){
+				var updated_words = [];
+				if (typeof item == 'undefined') {
+					dbMarkov.insert({
+						key: key,
+						words: dict[key]
+					});
+				} else {
+					updated_words = dict[key].concat(item.words);
+					item.words = updated_words;
+					dbMarkov.save(item);
+				}
+				console.log("[" + __index + "/" + __count + "]", 'saved item', _index, 'of', arr.length);
+				if (__index == __count) {
+					console.log("\nGoodbye.");
+					process.exit();
+				}
+			});
+		});
+	}
+	
+	if (typeof message != 'string' || message.length < 3) return;
 	// console.log('Adding words to Markov DB');
 	
 	dict = {};
@@ -38,21 +72,6 @@ var generate_keys = function(message, _index, __count) {
 		second = third;
 	};
 	
-	console.log(dict);
-	Object.keys(dict).forEach(function(key, _index){
-		dbMarkov.findOne({ key: key }, function(err, item){
-			var updated_words = [];
-			if (typeof item == 'undefined') {
-				dbMarkov.insert({
-					key: key,
-					words: dict[key]
-				});
-			} else {
-				updated_words = dict[key].concat(item.words);
-				item.words = updated_words;
-				dbMarkov.save(item);
-			}
-			console.log('saved item', _index);
-		});
-	});
+	saveMarkov();
+	// console.log(dict);
 };
