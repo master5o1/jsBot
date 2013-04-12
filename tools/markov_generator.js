@@ -43,7 +43,7 @@ if (filename == '--database') {
 											.replace(/&lt;/, '<')
 											.replace(/&gt;/, '>');
 						if (sanitised.substring(0, 1) != '<' || sanitised.substring(0, 3) == '<--') return;
-						sanitised = sanitised.replace(/<[^>]+>/, '');
+						sanitised = sanitised.replace(/^<[^>]+>/, '');
 						console.log("receiving...", __index, _index, url);
 						markov_lines.push(sanitised);
 					});

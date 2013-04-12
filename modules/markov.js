@@ -133,7 +133,7 @@ var Module = module.exports = function Module(bot){
 				return user.host == bot.users[from].host && user.account == bot.users[from].account;
 			});
 		if (args.length == 0) {
-			bot.say(client, receiver, bot.help('markov', '(list|say <words>|probability <float>)'));
+			bot.say(client, receiver, bot.help('markov', '(list|count|say <words>|probability <float>)'));
 			return
 		}
 		if (args[0] == 'list') {
@@ -148,6 +148,10 @@ var Module = module.exports = function Module(bot){
 				receiver = to
 			}
 			setProbability(client, receiver, receiver, args.slice(1)); // users can only set their own one.
+		} else if (args[0] == 'count') {
+			dbMarkov.count(function(err, count){
+				bot.say(client, receiver, 'There are ' + count + ' entries.');
+			});
 		}
 	};
 	
