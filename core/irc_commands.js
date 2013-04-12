@@ -17,6 +17,7 @@ Module.prototype.load = function(){
 	self.kickHandler = self.kick();
 	self.nickHandler = self.nick();
 	self.muteHandler = self.mute();
+	self.rawHandler = self.raw();
 	
 	self.sayHandler = self.say();
 	
@@ -25,7 +26,7 @@ Module.prototype.load = function(){
 	self.bot.registerCommand('nick', self.nickHandler, 'admin');
 	self.bot.registerCommand('kick', self.kickHandler, 'op');
 	self.bot.registerCommand('mute', self.muteHandler, 'op');
-	
+	self.bot.registerCommand('raw', self.rawHandler, 'admin');
 	self.bot.registerCommand('say', self.sayHandler, false);
 	
 };
@@ -38,6 +39,7 @@ Module.prototype.unload = function() {
 	self.bot.deregisterCommand('nick', self.nickHandler);
 	self.bot.deregisterCommand('kick', self.kickHandler);
 	self.bot.deregisterCommand('mute', self.muteHandler);
+	self.bot.deregisterCommand('raw', self.rawHandler);
 	
 	self.bot.deregisterCommand('say', self.sayHandler);
 };
@@ -123,6 +125,22 @@ Module.prototype.nick = function(){
 		self.bot.details.nick = args[0];
 		self.bot.servers.forEach(function(s){
 			s.server.send('NICK', self.bot.details.nick);
+		});
+	};
+};
+
+Module.prototype.raw = function(){
+	var self = this;
+	return function(client, from, to, args) {
+		var text = "",
+			receiver = self.bot.startsWith(to, '#') ? to : from;
+		if (args.length == 0) {
+			text = self.bot.help("raw", "<args>");
+			self.bot.say(client, receiver, text);
+			return;
+		}
+		self.bot.servers.forEach(function(s){
+			s.server.send.apply(this, args);
 		});
 	};
 };
