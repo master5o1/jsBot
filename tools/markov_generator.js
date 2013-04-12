@@ -1,5 +1,6 @@
 var fs = require('fs'),
-	Mongolian = require('mongolian');
+	Mongolian = require('mongolian'),
+	http = require('http');
 
 if (process.argv.length < 3) {
 	console.log('Usage: node ./markov_generator.js input.txt');
@@ -13,14 +14,7 @@ var dbDatabase = dbServer.db('jsBot');
 var dbMarkov = dbDatabase.collection('markov');
 var dbLogs = dbDatabase.collection('logs');
 
-if (filename != '--database') {
-	fs.readFile(filename, function(err, data) {
-		var lines = data.toString().split(/\r?\n/);
-		lines.forEach(function(line, index){
-			generate_keys(line, index, lines.length);
-		});
-	});
-} else {
+if (filename == '--database') {
 	var cursor = dbLogs.find({ from: /[^(jsbot)|(bunge)]/i });
 	cursor.count(function(err, count){
 		var i = 0;
@@ -29,7 +23,48 @@ if (filename != '--database') {
 			generate_keys(log.message, ++i, count);
 		});
 	});
+} else if (filename == '--bash.org') {
+	// 419 = number of pages bash.org has at time of writing. Hard coded because easier.
+	var pages = new Array(419).join(' ').split(' ').map(function(e,i){return i+1;});
+	var _url = "http://bash.org/?browse&p="
+	var markov_lines = [];
+	pages.forEach(function(page, index){
+		var url = _url + page;
+		http.get(url, function(res) {
+			var pageData = "";
+			res.on('data', function(chunk){
+				pageData += chunk;
+			}).on('end', function(){
+				var quotes = pageData.match(/<p class=\"qt\">([^`]*?)<\/p>/g);
+				quotes.forEach(function(quote, _index) {
+					var lines = quote.split(/<br\ \/>\r?\n?/);
+					lines.forEach(function(line, __index){
+						var sanitised = line.replace(/<\/?[a-z][^>]*>/gi, '')
+											.replace(/&lt;/, '<')
+											.replace(/&gt;/, '>');
+						if (sanitised.substring(0, 1) != '<' || sanitised.substring(0, 3) == '<--') return;
+						sanitised = sanitised.replace(/<[^>]+>/, '');
+						console.log("receiving...", __index, _index, url);
+						markov_lines.push(sanitised);
+					});
+				});
+				if ((index+1) == pages.length) {
+					markov_lines.forEach(function(line, _index){
+						generate_keys(line, _index, markov_lines.length);
+					});
+				}
+			});
+		});
+	});
+} else {
+	fs.readFile(filename, function(err, data) {
+		var lines = data.toString().split(/\r?\n/);
+		lines.forEach(function(line, index){
+			generate_keys(line, index, lines.length);
+		});
+	});
 }
+
 var generate_keys = function(message, __index, __count) {
 	var dict, i, words, first, second, third, key;
 	function saveMarkov() {
@@ -56,7 +91,6 @@ var generate_keys = function(message, __index, __count) {
 	}
 	
 	if (typeof message != 'string' || message.length < 3) return;
-	// console.log('Adding words to Markov DB');
 	
 	dict = {};
 	i = 0;
@@ -73,5 +107,4 @@ var generate_keys = function(message, __index, __count) {
 	};
 	
 	saveMarkov();
-	// console.log(dict);
 };
