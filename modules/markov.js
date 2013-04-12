@@ -133,13 +133,11 @@ var Module = module.exports = function Module(bot){
 				return user.host == bot.users[from].host && user.account == bot.users[from].account;
 			});
 		if (args.length == 0) {
-			bot.say(client, receiver, bot.help('markov', '(list|count|say <words>|probability <float>)'));
+			bot.say(client, receiver, bot.help('markov', '(list|count|probability <float>|<words of inspiration>)'));
 			return
 		}
 		if (args[0] == 'list') {
 			listProbability(client, from, to, args);
-		} else if (args[0] == 'say') {
-			builder(client, from, to, args.slice(1));
 		} else if (args[0] == 'probability') {
 			if (args.length == 1) args.push('what');
 			if (!!channel) isChanOp = /@/.test(client.chans[channel].users[from]);
@@ -152,6 +150,8 @@ var Module = module.exports = function Module(bot){
 			dbMarkov.count(function(err, count){
 				bot.say(client, receiver, 'There are ' + count + ' entries.');
 			});
+		} else {
+			builder(client, from, to, args);
 		}
 	};
 	
