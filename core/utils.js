@@ -25,8 +25,8 @@ module.exports = function Module(bot){
 	};
 	
 	var permsCommand = function(client, from, to, args) {
+		var receiver = bot.startsWith(to, '#') ? to : from;
 		function setPerms(client, from, to, permission, nick) {
-			var receiver = bot.startsWith(to, '#') ? to : from,
 				text = "",
 				user = { host: bot.users[nick].host, account: bot.users[nick].account };
 			bot.details.admin = bot.details.admin.filter(function(user){
