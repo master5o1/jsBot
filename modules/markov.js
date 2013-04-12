@@ -68,16 +68,19 @@ var Module = module.exports = function Module(bot){
 	
 	var builder = function(client, from, to, args){
 		var dict = {},
+			string_length = max_words;
 			receiver = bot.startsWith(to, '#') ? to : from;
 		
-		function build_string(dict, length) {
+		if (args.length == 2 && args[0] == 'say' && typeof (args[1]*1) == 'number' && !/nan/i.test(''+(args[1]*1)))
+			string_length = args[1]*1;
+		
+		function build_string(dict) {
 			var dict_keys = [];
-			length = length || max_words;
 			for (var k in dict) { dict_keys.push(k); }
 			var start_key = Math.round(Math.random()*dict_keys.length)%dict_keys.length;
 			var key = dict_keys[start_key];
 			var str = key;
-			while (str.split(" ").length < length) {
+			while (str.split(" ").length < string_length) {
 				var value = dict[key];
 				str = str + " " + value;
 				key = key.split(" ")[1] + " " + value;
@@ -151,6 +154,7 @@ var Module = module.exports = function Module(bot){
 				bot.say(client, receiver, 'There are ' + count + ' entries.');
 			});
 		} else {
+			if (args[0] == 'say') args = args.slice(0, 2);
 			builder(client, from, to, args);
 		}
 	};
