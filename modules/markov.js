@@ -37,6 +37,7 @@ var Module = module.exports = function Module(bot){
 					updated_words = dict[key].concat(item.words);
 					item.words = updated_words;
 					dbMarkov.save(item);
+					return;
 				}
 			});
 		});
@@ -116,7 +117,7 @@ var Module = module.exports = function Module(bot){
 				cursor = dbMarkov.find(starting_key).skip(skip).limit(1),
 				default_cursor = dbMarkov.find(starting_key).skip(skip).limit(1);
 			if (args.length > 0) {
-				start = Math.round(Math.random() * (args.length + 1)) % args.length;
+				start = Math.round(Math.random() * args.length) % (args.length - 1);
 				finish = start + 2;
 				cursor = dbMarkov.find({ key: args.slice(start, finish).join(' ') }).limit(1);
 			}

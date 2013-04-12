@@ -1,7 +1,7 @@
 var config = module.exports = {};
 
 config.bot = {
-	nick: "jsBot",
+	nick: "Bunge_",
 	pass: "",
 	commandPrefix: '.'
 };
