@@ -147,7 +147,7 @@ var Module = module.exports = function Module(bot){
 				return user.host == bot.users[from].host && user.account == bot.users[from].account;
 			});
 		if (args.length == 0) {
-			bot.say(client, receiver, bot.help('markov', '(list|count|probability <float>|<words of inspiration>)'));
+			bot.say(client, receiver, bot.help('markov', '(list|count|probability <float>|say|<words of inspiration>)'));
 			return
 		}
 		if (args[0] == 'list') {
