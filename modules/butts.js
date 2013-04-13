@@ -14,7 +14,7 @@ module.exports = function Module(bot){
 		} else if (/number/i.test(typeof parseFloat(args[0])) && ! /nan/i.test(parseFloat(args[0]).toString())) {
 			custom_probabilities[prob_key] = parseFloat(args[0]);
 			probability = typeof custom_probabilities[prob_key] == 'number' ? custom_probabilities[prob_key] : default_probability;
-			text = 'Random butts generation probability for ' + prob_key + ' is set to ' + probability.toFixed(2) + '.';
+			text = 'Random butts probability for ' + prob_key + ' is set to ' + probability.toFixed(2) + '.';
 		}
 		bot.say(client, receiver, text);
 	};
