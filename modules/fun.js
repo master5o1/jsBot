@@ -45,7 +45,7 @@ Module.prototype.magic8ball = function(){
 
 Module.prototype.sortinghat = function(){
 	var self = this,
-		houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherine'];
+		houses = ['Gryffindor', 'Hufflepuff', 'Ravenclaw', 'Slytherin'];
 	return function(client, from, to, args) {
 		var nick, key, text = "";
 		if (args.length == 0 || !self.bot.startsWith(to, '#')) {

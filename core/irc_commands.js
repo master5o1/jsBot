@@ -170,21 +170,18 @@ Module.prototype.say = function(){
 			if (typeof client.chans[receiver] == 'undefined') {
 				args.unshift(receiver);
 				receiver = r;
-			} else {
-				if (args[0] == '/me') {
-					args.shift();
-				}
 			}
-			message = args.join(' ');
-		} else if (args[0] == '/me') {
-			args.shift();
 			message = args.join(' ');
 		}
 		
 		message.split("\n").forEach(function(text){
 			var isAction = self.bot.startsWith(text, '/me');
-			if (isAction) client.action(receiver, text);
-			else client.say(receiver, text);
+			if (isAction) {
+				client.action(receiver, text.replace(/^\/me /i,''));
+			}
+			else {
+				client.say(receiver, text);
+			}
 			self.bot.emit('said', client, self.bot.details.nick, receiver, text);
 		});
 	};
