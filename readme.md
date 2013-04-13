@@ -23,7 +23,7 @@ Not bothered to write this yet.
 
 Licence
 -------
-Copyright (C) 2012 [Jason Schwarzenberger](http://master5o1.com/)
+Copyright (C) 2013 [Jason Schwarzenberger](http://master5o1.com/)
 
 MIT License
 
