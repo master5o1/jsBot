@@ -69,10 +69,21 @@ var Module = module.exports = function Module(bot){
 	var builder = function(client, from, to, args){
 		var dict = {},
 			string_length = max_words;
-			receiver = bot.startsWith(to, '#') ? to : from;
+			receiver = bot.startsWith(to, '#') ? to : from,
+			isAdmin = false
 		
-		if (args.length == 2 && args[0] == 'say' && typeof (args[1]*1) == 'number' && !/nan/i.test(''+(args[1]*1)))
+		if (args.length == 2 && args[0] == '.say' && typeof (args[1]*1) == 'number' && !/nan/i.test(''+(args[1]*1)))
 			string_length = args[1]*1;
+		if ((args.length == 2 && args[0] == '.say' && bot.startsWith(''+args[1], '#'))) {
+			isAdmin = bot.details.admin.some(function(user){
+				return user.host == bot.users[from].host && user.account == bot.users[from].account;
+			});
+			if (isAdmin && typeof client.chans[args[1]] != 'undefined') {
+				receiver = args[1];
+			} else {
+				bot.say(client, receiver, "Can't, bro.");
+			}	
+		}
 		
 		function build_string(dict) {
 			var dict_keys = [];
@@ -154,7 +165,7 @@ var Module = module.exports = function Module(bot){
 				bot.say(client, receiver, 'There are ' + count + ' entries.');
 			});
 		} else {
-			if (args[0] == 'say') args = args.slice(0, 2);
+			if (/\.?say/.test(args[0])) args = ['.say', args[1]];
 			builder(client, from, to, args);
 		}
 	};
