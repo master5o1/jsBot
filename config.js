@@ -32,7 +32,9 @@ config.servers = [
 	{
 		name: "PirateIRC",
 		url: "london-uk.pirateirc.net",
-		channels: []
+		channels: [
+			"#ppnz"
+		]
 	}
 ];
 
