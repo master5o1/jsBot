@@ -52,7 +52,7 @@ Module.prototype.sortinghat = function(){
 			text = self.bot.help('sortinghat', "<nick>");
 		} else {
 			nick = args[0];
-			if (typeof client.chans[to].users[nick] == 'undefined') {
+			if (typeof client.chans[to.toLowerCase()].users[nick] == 'undefined') {
 				text = "But they're not here!";
 			} else {
 				key = nick.split('').reduce(function(p, c){

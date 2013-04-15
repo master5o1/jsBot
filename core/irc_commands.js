@@ -167,7 +167,7 @@ Module.prototype.say = function(){
 		
 		if (self.bot.startsWith((args[0] || '_'), '#')) {
 			receiver = args.shift();
-			if (typeof client.chans[receiver] == 'undefined') {
+			if (typeof client.chans[receiver.toLowerCase()] == 'undefined') {
 				args.unshift(receiver);
 				receiver = r;
 			}

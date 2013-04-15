@@ -77,7 +77,7 @@ Bot.prototype.messageParser = function(client) {
 			commands = bot.commands.filter(function(c){
 				return c.command == command;
 			});
-		if (!!channel) isChanOp = /@/.test(client.chans[channel].users[from]);
+		if (!!channel) isChanOp = /@/.test(client.chans[channel.toLowerCase()].users[from]);
 		if (isAdmin) isChanOp = isAdmin;
 		if (commands.length == 0) return;
 		if (isBanned

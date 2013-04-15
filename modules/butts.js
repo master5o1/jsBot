@@ -62,7 +62,7 @@ module.exports = function Module(bot){
 			listProbability(client, from, to, args);
 		} else if (args[0] == 'probability') {
 			if (args.length == 1) args.push('what');
-			if (!!channel) isChanOp = /@/.test(client.chans[channel].users[from]);
+			if (!!channel) isChanOp = /@/.test(client.chans[channel.toLowerCase()].users[from]);
 			receiver = from;
 			if (bot.startsWith(to, '#') && (isChanOp || isAdmin)) {
 				receiver = to

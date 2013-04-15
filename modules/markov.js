@@ -78,7 +78,7 @@ var Module = module.exports = function Module(bot){
 			isAdmin = bot.details.admin.some(function(user){
 				return user.host == bot.users[from].host && user.account == bot.users[from].account;
 			});
-			if (isAdmin && typeof client.chans[args[1]] != 'undefined') {
+			if (isAdmin && typeof client.chans[args[1].toLowerCase()] != 'undefined') {
 				receiver = args[1];
 			} else {
 				bot.say(client, receiver, "Can't, bro.");
@@ -154,7 +154,7 @@ var Module = module.exports = function Module(bot){
 			listProbability(client, from, to, args);
 		} else if (args[0] == 'probability') {
 			if (args.length == 1) args.push('what');
-			if (!!channel) isChanOp = /@/.test(client.chans[channel].users[from]);
+			if (!!channel) isChanOp = /@/.test(client.chans[channel.toLowerCase()].users[from]);
 			receiver = from;
 			if (bot.startsWith(to, '#') && (isChanOp || isAdmin)) {
 				receiver = to
