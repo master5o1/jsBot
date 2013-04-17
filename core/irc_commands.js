@@ -117,9 +117,10 @@ Module.prototype.nick = function(){
 	var self = this;
 	return function(client, from, to, args) {
 		var text = "";
-		if (args.length == 0 || !self.bot.startsWith(to, '#')) {
+		var receiver = self.bot.startsWith(to, '#') ? to : from;
+		if (args.length == 0) {
 			text = self.bot.help("nick", "<nick>");
-			self.bot.emit('command_say', client, self.bot.details.nick, to, text.split(' '));
+			self.bot.say(client, receiver, text);
 			return;
 		}
 		self.bot.details.nick = args[0];
@@ -139,9 +140,10 @@ Module.prototype.raw = function(){
 			self.bot.say(client, receiver, text);
 			return;
 		}
-		self.bot.servers.forEach(function(s){
-			s.server.send.apply(this, args);
-		});
+		console.log(args);
+		var sendArgs = [ args[0], args[1], args.slice(2).join(' ')];
+		console.log(sendArgs);
+		client.send.apply(this, sendArgs);
 	};
 };
 
