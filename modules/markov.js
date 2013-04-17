@@ -3,7 +3,7 @@ var Mongolian = require('mongolian');
 var Module = module.exports = function Module(bot){
 	var self = this;
 	var dbMarkov = bot.dbDatabase.collection('markov');
-	var default_probability = 0.02;
+	var default_probability = 0.0;
 	var custom_probabilities = {};
 	var max_words = 25;
 	
