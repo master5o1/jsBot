@@ -140,10 +140,9 @@ Module.prototype.raw = function(){
 			self.bot.say(client, receiver, text);
 			return;
 		}
-		console.log(args);
 		var sendArgs = [ args[0], args[1], args.slice(2).join(' ')];
-		console.log(sendArgs);
-		client.send.apply(this, sendArgs);
+		var rawResult = client.send.apply(this, sendArgs);
+		console('raw', rawResult);
 	};
 };
 

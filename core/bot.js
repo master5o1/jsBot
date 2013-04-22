@@ -59,9 +59,10 @@ Bot.prototype.messageParser = function(client) {
 	var failure_responses = [
 		"ACCESS DENIED",
 		"Computer says no.",
+		"Aren't you a bit young for that?",
+		"Human, STAHP!"
 	];
 	var parseCommand = function(from, to, message){
-		console.log(bot.users[from]);
 		var response = Math.round(Math.random() * (failure_responses.length + 1)) % failure_responses.length,
 			fail_response = failure_responses[response],
 			isAdmin = bot.details.admin.some(function(user){
@@ -115,16 +116,14 @@ Bot.prototype.errorParser = function(client) {
 };
 
 Bot.prototype.addModule = function(module, name, core) {
-	var bot = this, mod;
-	core = core || false;
-	var mod = {
-		name: name.replace(/\.js$/, ''),
-		file: name,
-		path: (core ? './' : '../modules/'),
-		core: core,
-		module: new module(bot)
-	};
-	
+	var bot = this,
+		mod = {
+			name: name.replace(/\.js$/, ''),
+			file: name,
+			path: (!!core ? './' : '../modules/'),
+			core: !!core,
+			module: new module(bot)
+		};
 	bot.modules.push(mod);
 };
 
