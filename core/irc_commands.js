@@ -141,8 +141,7 @@ Module.prototype.raw = function(){
 			return;
 		}
 		var sendArgs = [ args[0], args[1], args.slice(2).join(' ')];
-		var rawResult = client.send.apply(this, sendArgs);
-		console('raw', rawResult);
+		client.send.apply(this, sendArgs);
 	};
 };
 
