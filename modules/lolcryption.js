@@ -3,14 +3,11 @@ var Module = module.exports = function Module(bot){
 	var tr = function (str, inAlphabet, outAlphabet) {
 		inAlphabet = inAlphabet || 'aeioubcdfghjklmnpqrstvwxyz';
 		outAlphabet = outAlphabet || 'iouaenpqrstvwxyzbcdfghjklm';
-		
-		return str.split('').map(function (c) {
-			var isCaps = /[A-Z]/.test(c);
-			c = c.toLowerCase();
-			index = inAlphabet.indexOf(c);
-			c = index > -1 ? outAlphabet.charAt(index) : c;
-			return isCaps ? c.toUpperCase() : c;
-		}).join('');
+		return str.replace(new RegExp('([' + inAlphabet + '])', 'ig'), function (value) {
+			var index = inAlphabet.indexOf(value.toLowerCase());
+			var c = outAlphabet[index] || value;
+			return /[A-Z]/.test(value) ? c.toUpperCase() : c;
+		});
 	};
 
 	var enlolcrypt = function (str) {
