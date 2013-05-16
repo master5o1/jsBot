@@ -23,10 +23,12 @@ config.servers = [
 		channels: [
 			"##jsbot",
 			"#ualug",
+			"##xbotpp",
 			"##bikes",
+			"#node.js",
+			"##javascript",
 			"#bitcoin-pricetalk",
-			"#mtgoxlive",
-			"#node.js"
+			"#mtgoxlive"
 		]
 	},
 	{
